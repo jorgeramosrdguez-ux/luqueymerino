@@ -58,6 +58,9 @@
   <header class="nav" id="nav">
     <div class="container nav__inner">
       <a href="#inicio" class="brand" aria-label="Luque y Merino Decoración, inicio">
+        <!-- Sube tu logo como img/logo.png y aparecerá aquí automáticamente -->
+        <img class="logo__img" src="img/logo.png" alt="Luque &amp; Merino Decoración"
+             onload="this.closest('.brand').classList.add('has-img')" onerror="this.remove()" />
         <span class="logo">
           <span class="logo__script">luque <em>&amp;</em> merino</span>
           <span class="logo__deco">Decoración</span>
@@ -154,6 +157,20 @@
       </div>
     </section>
 
+    <!-- ====== BANNER DE OFERTAS ====== -->
+    <section class="promo-wrap">
+      <div class="container">
+        <a class="promo reveal" href="#catalogo" data-cat-filter="ofertas">
+          <div class="promo__badge">OFERTAS</div>
+          <div class="promo__text">
+            <h2>Hasta <strong>‑30%</strong> en textil de temporada</h2>
+            <p>Toallas, ropa de cama y mantelerías seleccionadas. Mientras haya existencias.</p>
+          </div>
+          <span class="promo__cta">Ver ofertas →</span>
+        </a>
+      </div>
+    </section>
+
     <!-- ====== CATEGORÍAS ====== -->
     <section class="section" id="categorias">
       <div class="container">
@@ -224,49 +241,6 @@
           <h2 class="section__title">Lo que puedes encontrar</h2>
           <p class="section__sub">Una muestra de nuestros productos. Busca o filtra por categoría. ¿Te interesa algo? Pásate por la tienda o pregúntanos.</p>
         </header>
-
-        <!-- Destacados -->
-        <div class="featured reveal">
-          <h3 class="featured__title">★ Productos destacados</h3>
-          <div class="products featured__grid">
-            <article class="product product--featured">
-              <div class="product__img"><span class="product__ribbon">★ Destacado</span><img src="img/cortinas.svg" alt="Estor a medida" loading="lazy" /></div>
-              <div class="product__body">
-                <span class="product__cat">Cortinas y estores</span>
-                <h3>Estor a medida</h3>
-                <p>Confección e instalación a domicilio.</p>
-                <div class="product__foot"><span class="product__price">Presupuesto</span><span class="product__ref">a medida</span></div>
-              </div>
-            </article>
-            <article class="product product--featured">
-              <div class="product__img"><span class="product__ribbon">★ Destacado</span><img src="img/bordado.svg" alt="Toallas bordadas" loading="lazy" /></div>
-              <div class="product__body">
-                <span class="product__cat">Bordados</span>
-                <h3>Toallas con nombre</h3>
-                <p>Juego de toallas con el nombre bordado.</p>
-                <div class="product__foot"><span class="product__price">26,90 €</span><span class="product__ref">precio orientativo</span></div>
-              </div>
-            </article>
-            <article class="product product--featured">
-              <div class="product__img"><span class="product__ribbon">★ Destacado</span><img src="img/cama.svg" alt="Funda nórdica" loading="lazy" /></div>
-              <div class="product__body">
-                <span class="product__cat">Textil hogar</span>
-                <h3>Funda nórdica</h3>
-                <p>100% algodón. Nuestro básico más vendido.</p>
-                <div class="product__foot"><span class="product__price">42,90 €</span><span class="product__ref">precio orientativo</span></div>
-              </div>
-            </article>
-            <article class="product product--featured">
-              <div class="product__img"><span class="product__ribbon">★ Destacado</span><img src="img/bebe.svg" alt="Arrullo de bebé" loading="lazy" /></div>
-              <div class="product__body">
-                <span class="product__cat">Bebé</span>
-                <h3>Arrullo de bebé</h3>
-                <p>Algodón suave. El regalo perfecto.</p>
-                <div class="product__foot"><span class="product__price">27,90 €</span><span class="product__ref">precio orientativo</span></div>
-              </div>
-            </article>
-          </div>
-        </div>
 
         <!-- Buscador + filtros -->
         <div class="catalog-tools reveal">
