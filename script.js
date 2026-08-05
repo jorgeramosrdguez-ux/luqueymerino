@@ -61,58 +61,32 @@
     revealEls.forEach(function (el) { el.classList.add("is-visible"); });
   }
 
-  /* ---- Filtros de la galería ---- */
-  var filters = document.querySelectorAll(".filter");
-  var shots = document.querySelectorAll(".gallery .shot");
-  filters.forEach(function (btn) {
+  /* ---- Filtro del catálogo por categoría ---- */
+  var catFilters = document.querySelectorAll(".cat-filters .filter");
+  var catItems = document.querySelectorAll("#catalog .product");
+
+  function applyCatFilter(f) {
+    catFilters.forEach(function (b) {
+      b.classList.toggle("is-active", b.getAttribute("data-filter") === f);
+    });
+    catItems.forEach(function (item) {
+      var show = f === "all" || item.getAttribute("data-cat") === f;
+      item.classList.toggle("is-hidden", !show);
+    });
+  }
+
+  // Botones de filtro dentro del catálogo
+  catFilters.forEach(function (btn) {
     btn.addEventListener("click", function () {
-      filters.forEach(function (b) { b.classList.remove("is-active"); });
-      btn.classList.add("is-active");
-      var f = btn.getAttribute("data-filter");
-      shots.forEach(function (shot) {
-        var show = f === "all" || shot.getAttribute("data-tag") === f;
-        shot.classList.toggle("is-hidden", !show);
-      });
+      applyCatFilter(btn.getAttribute("data-filter"));
     });
   });
 
-  /* ---- Lightbox de la galería ---- */
-  var lightbox = document.createElement("div");
-  lightbox.className = "lightbox";
-  lightbox.setAttribute("role", "dialog");
-  lightbox.setAttribute("aria-modal", "true");
-  lightbox.innerHTML =
-    '<div class="lightbox__card" id="lbCard">' +
-    '<button class="lightbox__close" aria-label="Cerrar">&times;</button>' +
-    '<div class="lightbox__cap" id="lbCap"></div>' +
-    "</div>";
-  document.body.appendChild(lightbox);
-  var lbCard = lightbox.querySelector("#lbCard");
-  var lbCap = lightbox.querySelector("#lbCap");
-
-  function openLightbox(shot) {
-    var h = shot.style.getPropertyValue("--h");
-    lbCard.style.background =
-      "linear-gradient(160deg, hsl(" + h + " / .95), hsl(" + h + " / .6))";
-    var cap = shot.querySelector("figcaption");
-    lbCap.textContent = cap ? cap.textContent : "";
-    lightbox.classList.add("is-open");
-    document.body.style.overflow = "hidden";
-  }
-  function closeLightbox() {
-    lightbox.classList.remove("is-open");
-    document.body.style.overflow = "";
-  }
-  shots.forEach(function (shot) {
-    shot.addEventListener("click", function () { openLightbox(shot); });
-  });
-  lightbox.addEventListener("click", function (e) {
-    if (e.target === lightbox || e.target.classList.contains("lightbox__close")) {
-      closeLightbox();
-    }
-  });
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closeLightbox();
+  // Accesos directos (tarjetas de categoría y menú "Colección") que filtran el catálogo
+  document.querySelectorAll("[data-cat-filter]").forEach(function (el) {
+    el.addEventListener("click", function () {
+      applyCatFilter(el.getAttribute("data-cat-filter"));
+    });
   });
 
   /* ---- Formulario → WhatsApp ---- */

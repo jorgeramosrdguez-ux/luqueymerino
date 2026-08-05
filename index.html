@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Luque &amp; Merino · Ropa de hogar y decoración en Alcorcón</title>
   <meta name="description" content="Luque & Merino, tu tienda de ropa de hogar y decoración en Alcorcón. Ropa de cama, baño, cortinas y estores a medida, mantelerías y textil de bebé con bordado personalizado. Trato cercano y confección propia." />
-  <meta name="theme-color" content="#7a5a2b" />
+  <meta name="theme-color" content="#7d1f2e" />
 
   <!-- Open Graph / redes sociales -->
   <meta property="og:type" content="business.business" />
@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Great+Vibes&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23bf9250'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-style='italic' font-size='17' fill='%23fffdf9' text-anchor='middle'%3ELM%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%237d1f2e'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-style='italic' font-size='17' fill='%23fffdf9' text-anchor='middle'%3ELM%3C/text%3E%3C/svg%3E" />
 
   <!-- Datos estructurados para SEO local -->
   <script type="application/ld+json">
@@ -70,16 +70,16 @@
             <svg class="nav__caret" viewBox="0 0 12 8" width="11" height="8" aria-hidden="true"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
           <div class="dropdown">
-            <a href="#cat-cama">Ropa de cama</a>
-            <a href="#cat-bano">Baño</a>
-            <a href="#cat-cortinas">Cortinas y estores</a>
-            <a href="#cat-mantelerias">Mantelerías</a>
-            <a href="#cat-bebe">Bebé e infantil</a>
+            <a href="#catalogo" data-cat-filter="cama">Ropa de cama</a>
+            <a href="#catalogo" data-cat-filter="bano">Baño</a>
+            <a href="#catalogo" data-cat-filter="cortinas">Cortinas y estores</a>
+            <a href="#catalogo" data-cat-filter="mantel">Mantelerías</a>
+            <a href="#catalogo" data-cat-filter="bebe">Bebé e infantil</a>
           </div>
         </div>
         <a href="#a-medida">A medida</a>
         <a href="#bordado">Bordado</a>
-        <a href="#galeria">Inspiración</a>
+        <a href="#catalogo">Catálogo</a>
         <a href="#nosotros">Nosotros</a>
         <a href="#visitanos">Visítanos</a>
         <a href="#contacto" class="btn btn--sm btn--primary nav__cta">Hacer una pregunta</a>
@@ -163,7 +163,7 @@
         </header>
 
         <div class="cats">
-          <a class="cat cat--lg reveal" id="cat-cama" href="#productos" data-cat="cama">
+          <a class="cat cat--lg reveal" id="cat-cama" href="#catalogo" data-cat-filter="cama">
             <div class="cat__img"><img src="img/cama.svg" alt="Ropa de cama" loading="lazy" /></div>
             <div class="cat__body">
               <h3>Ropa de cama</h3>
@@ -171,7 +171,7 @@
               <span class="cat__link">Ver productos →</span>
             </div>
           </a>
-          <a class="cat reveal" id="cat-bano" href="#productos" data-cat="bano">
+          <a class="cat reveal" id="cat-bano" href="#catalogo" data-cat-filter="bano">
             <div class="cat__img"><img src="img/albornoz.svg" alt="Baño: toallas y albornoces" loading="lazy" /></div>
             <div class="cat__body">
               <h3>Baño</h3>
@@ -179,15 +179,15 @@
               <span class="cat__link">Ver productos →</span>
             </div>
           </a>
-          <a class="cat reveal" id="cat-cortinas" href="#a-medida" data-cat="cortinas">
+          <a class="cat reveal" id="cat-cortinas" href="#catalogo" data-cat-filter="cortinas">
             <div class="cat__img"><img src="img/cortinas.svg" alt="Cortinas y estores" loading="lazy" /></div>
             <div class="cat__body">
               <h3>Cortinas y estores</h3>
               <p>Confección e instalación a medida y paneles japoneses.</p>
-              <span class="cat__link">Ver servicio →</span>
+              <span class="cat__link">Ver productos →</span>
             </div>
           </a>
-          <a class="cat reveal" id="cat-mantelerias" href="#productos" data-cat="mantelerias">
+          <a class="cat reveal" id="cat-mantelerias" href="#catalogo" data-cat-filter="mantel">
             <div class="cat__img"><img src="img/mantelerias.svg" alt="Mantelerías" loading="lazy" /></div>
             <div class="cat__body">
               <h3>Mantelerías</h3>
@@ -195,7 +195,7 @@
               <span class="cat__link">Ver productos →</span>
             </div>
           </a>
-          <a class="cat cat--lg reveal" id="cat-bebe" href="#bordado" data-cat="bebe">
+          <a class="cat cat--lg reveal" id="cat-bebe" href="#catalogo" data-cat-filter="bebe">
             <div class="cat__img"><img src="img/bebe.svg" alt="Textil de bebé e infantil" loading="lazy" /></div>
             <div class="cat__body">
               <h3>Bebé e infantil</h3>
@@ -207,95 +207,171 @@
       </div>
     </section>
 
-    <!-- ====== PRODUCTOS DESTACADOS (DEMO) ====== -->
-    <section class="section section--tint" id="productos">
+    <!-- ====== CATÁLOGO (DEMO) ====== -->
+    <section class="section section--tint" id="catalogo">
       <div class="container">
         <header class="section__head reveal">
-          <span class="eyebrow">Escaparate</span>
-          <h2 class="section__title">Productos destacados</h2>
-          <p class="section__sub">Una muestra de lo que encontrarás en la tienda. Pregúntanos por cualquiera y te informamos de disponibilidad, colores y medidas.</p>
+          <span class="eyebrow">Catálogo</span>
+          <h2 class="section__title">Lo que puedes encontrar</h2>
+          <p class="section__sub">Una muestra de nuestros productos. Filtra por categoría y echa un vistazo. ¿Te interesa algo? Pásate por la tienda o pregúntanos.</p>
         </header>
 
-        <div class="products">
-          <article class="product reveal">
-            <div class="product__img"><img src="img/toallas.svg" alt="Juego de toallas" loading="lazy" /></div>
-            <div class="product__body">
-              <span class="product__cat">Baño</span>
-              <h3>Juego de toallas «Rizo Suave»</h3>
-              <p>100% algodón · 3 piezas (baño, lavabo y tocador)</p>
-              <div class="product__foot">
-                <span class="product__price">24,90 €</span>
-                <a class="product__ask" href="https://wa.me/34679381294?text=Hola,%20me%20interesa%20el%20juego%20de%20toallas%20Rizo%20Suave" target="_blank" rel="noopener">Preguntar</a>
-              </div>
-            </div>
-          </article>
+        <div class="filters cat-filters reveal" role="tablist" aria-label="Filtrar catálogo">
+          <button class="filter is-active" data-filter="all">Todo</button>
+          <button class="filter" data-filter="cama">Ropa de cama</button>
+          <button class="filter" data-filter="bano">Baño</button>
+          <button class="filter" data-filter="cortinas">Cortinas y estores</button>
+          <button class="filter" data-filter="mantel">Mantelerías</button>
+          <button class="filter" data-filter="bebe">Bebé e infantil</button>
+        </div>
 
-          <article class="product reveal">
+        <div class="products" id="catalog">
+          <!-- Ropa de cama -->
+          <article class="product reveal" data-cat="cama">
             <div class="product__img"><img src="img/cama.svg" alt="Juego de sábanas" loading="lazy" /></div>
             <div class="product__body">
               <span class="product__cat">Ropa de cama</span>
-              <h3>Juego de sábanas «Lino Nube»</h3>
-              <p>Algodón percal · encimera, bajera y fundas</p>
-              <div class="product__foot">
-                <span class="product__price">39,90 €</span>
-                <a class="product__ask" href="https://wa.me/34679381294?text=Hola,%20me%20interesa%20el%20juego%20de%20sábanas%20Lino%20Nube" target="_blank" rel="noopener">Preguntar</a>
-              </div>
+              <h3>Juego de sábanas</h3>
+              <p>Algodón · encimera, bajera y fundas.</p>
+              <div class="product__foot"><span class="product__price">32,90 €</span><span class="product__ref">precio orientativo</span></div>
+            </div>
+          </article>
+          <article class="product reveal" data-cat="cama">
+            <div class="product__img"><img src="img/cama.svg" alt="Funda nórdica" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Ropa de cama</span>
+              <h3>Funda nórdica</h3>
+              <p>100% algodón, suave y transpirable.</p>
+              <div class="product__foot"><span class="product__price">42,90 €</span><span class="product__ref">precio orientativo</span></div>
+            </div>
+          </article>
+          <article class="product reveal" data-cat="cama">
+            <div class="product__img"><img src="img/cama.svg" alt="Colcha bouti" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Ropa de cama</span>
+              <h3>Colcha bouti reversible</h3>
+              <p>Acolchado fino, ideal para entretiempo.</p>
+              <div class="product__foot"><span class="product__price">49,90 €</span><span class="product__ref">precio orientativo</span></div>
             </div>
           </article>
 
-          <article class="product reveal">
+          <!-- Baño -->
+          <article class="product reveal" data-cat="bano">
+            <div class="product__img"><img src="img/toallas.svg" alt="Juego de toallas" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Baño</span>
+              <h3>Juego de toallas</h3>
+              <p>Algodón rizo · 3 piezas.</p>
+              <div class="product__foot"><span class="product__price">24,90 €</span><span class="product__ref">precio orientativo</span></div>
+            </div>
+          </article>
+          <article class="product reveal" data-cat="bano">
             <div class="product__img"><img src="img/albornoz.svg" alt="Albornoz" loading="lazy" /></div>
             <div class="product__body">
               <span class="product__cat">Baño</span>
-              <h3>Albornoz «Baño Cálido»</h3>
-              <p>Rizo suave · bordado del nombre incluido</p>
-              <div class="product__foot">
-                <span class="product__price">34,90 €</span>
-                <a class="product__ask" href="https://wa.me/34679381294?text=Hola,%20me%20interesa%20el%20albornoz%20Baño%20Cálido" target="_blank" rel="noopener">Preguntar</a>
-              </div>
+              <h3>Albornoz con capucha</h3>
+              <p>Rizo suave · bordado del nombre opcional.</p>
+              <div class="product__foot"><span class="product__price">34,90 €</span><span class="product__ref">precio orientativo</span></div>
+            </div>
+          </article>
+          <article class="product reveal" data-cat="bano">
+            <div class="product__img"><img src="img/toallas.svg" alt="Alfombrilla de baño" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Baño</span>
+              <h3>Alfombrilla de baño</h3>
+              <p>Algodón, base antideslizante.</p>
+              <div class="product__foot"><span class="product__price">12,90 €</span><span class="product__ref">precio orientativo</span></div>
             </div>
           </article>
 
-          <article class="product reveal">
-            <div class="product__img"><img src="img/cortinas.svg" alt="Estor a medida" loading="lazy" /></div>
+          <!-- Cortinas y estores -->
+          <article class="product reveal" data-cat="cortinas">
+            <div class="product__img"><img src="img/cortinas.svg" alt="Estor enrollable a medida" loading="lazy" /></div>
             <div class="product__body">
               <span class="product__cat">Cortinas y estores</span>
-              <h3>Estor a medida «Día y Noche»</h3>
-              <p>Confección e instalación a domicilio</p>
-              <div class="product__foot">
-                <span class="product__price">Presupuesto</span>
-                <a class="product__ask" href="https://wa.me/34679381294?text=Hola,%20quiero%20presupuesto%20de%20un%20estor%20a%20medida" target="_blank" rel="noopener">Preguntar</a>
-              </div>
+              <h3>Estor enrollable a medida</h3>
+              <p>Confección e instalación a domicilio.</p>
+              <div class="product__foot"><span class="product__price">Presupuesto</span><span class="product__ref">a medida</span></div>
+            </div>
+          </article>
+          <article class="product reveal" data-cat="cortinas">
+            <div class="product__img"><img src="img/cortinas.svg" alt="Panel japonés" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Cortinas y estores</span>
+              <h3>Panel japonés</h3>
+              <p>Varios paneles, a medida de tu ventana.</p>
+              <div class="product__foot"><span class="product__price">Presupuesto</span><span class="product__ref">a medida</span></div>
+            </div>
+          </article>
+          <article class="product reveal" data-cat="cortinas">
+            <div class="product__img"><img src="img/cortinas.svg" alt="Cortina confeccionada" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Cortinas y estores</span>
+              <h3>Cortina confeccionada</h3>
+              <p>Con forro, tela a elegir. Medición e instalación.</p>
+              <div class="product__foot"><span class="product__price">Presupuesto</span><span class="product__ref">a medida</span></div>
             </div>
           </article>
 
-          <article class="product reveal">
-            <div class="product__img"><img src="img/mantelerias.svg" alt="Mantel" loading="lazy" /></div>
+          <!-- Mantelerías -->
+          <article class="product reveal" data-cat="mantel">
+            <div class="product__img"><img src="img/mantelerias.svg" alt="Mantel resinado" loading="lazy" /></div>
             <div class="product__body">
               <span class="product__cat">Mantelerías</span>
-              <h3>Mantel «Mesa de Domingo»</h3>
-              <p>Resinado antimanchas · varias medidas</p>
-              <div class="product__foot">
-                <span class="product__price">29,90 €</span>
-                <a class="product__ask" href="https://wa.me/34679381294?text=Hola,%20me%20interesa%20el%20mantel%20Mesa%20de%20Domingo" target="_blank" rel="noopener">Preguntar</a>
-              </div>
+              <h3>Mantel resinado antimanchas</h3>
+              <p>Se limpia con un paño. Varias medidas.</p>
+              <div class="product__foot"><span class="product__price">29,90 €</span><span class="product__ref">precio orientativo</span></div>
+            </div>
+          </article>
+          <article class="product reveal" data-cat="mantel">
+            <div class="product__img"><img src="img/mantelerias.svg" alt="Camino de mesa" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Mantelerías</span>
+              <h3>Camino de mesa</h3>
+              <p>El detalle que viste tu mesa a diario.</p>
+              <div class="product__foot"><span class="product__price">14,90 €</span><span class="product__ref">precio orientativo</span></div>
+            </div>
+          </article>
+          <article class="product reveal" data-cat="mantel">
+            <div class="product__img"><img src="img/mantelerias.svg" alt="Juego de servilletas" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Mantelerías</span>
+              <h3>Juego de servilletas (x6)</h3>
+              <p>Algodón, a juego con tu mantel.</p>
+              <div class="product__foot"><span class="product__price">16,90 €</span><span class="product__ref">precio orientativo</span></div>
             </div>
           </article>
 
-          <article class="product reveal">
-            <div class="product__img"><img src="img/bebe.svg" alt="Arrullo de bebé" loading="lazy" /></div>
+          <!-- Bebé e infantil -->
+          <article class="product reveal" data-cat="bebe">
+            <div class="product__img"><img src="img/bebe.svg" alt="Funda nórdica infantil" loading="lazy" /></div>
             <div class="product__body">
-              <span class="product__cat">Bebé</span>
-              <h3>Arrullo de bebé «Primer Abrazo»</h3>
-              <p>Algodón suave · con nombre bordado</p>
-              <div class="product__foot">
-                <span class="product__price">27,90 €</span>
-                <a class="product__ask" href="https://wa.me/34679381294?text=Hola,%20me%20interesa%20el%20arrullo%20de%20bebé%20Primer%20Abrazo" target="_blank" rel="noopener">Preguntar</a>
-              </div>
+              <span class="product__cat">Bebé e infantil</span>
+              <h3>Funda nórdica infantil</h3>
+              <p>Algodón, estampados divertidos.</p>
+              <div class="product__foot"><span class="product__price">34,90 €</span><span class="product__ref">precio orientativo</span></div>
+            </div>
+          </article>
+          <article class="product reveal" data-cat="bebe">
+            <div class="product__img"><img src="img/bebe.svg" alt="Protector de cuna" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Bebé e infantil</span>
+              <h3>Protector de cuna</h3>
+              <p>Acolchado y suave para el descanso del bebé.</p>
+              <div class="product__foot"><span class="product__price">27,90 €</span><span class="product__ref">precio orientativo</span></div>
+            </div>
+          </article>
+          <article class="product reveal" data-cat="bebe">
+            <div class="product__img"><img src="img/bebe.svg" alt="Toalla capa de bebé" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Bebé e infantil</span>
+              <h3>Toalla capa con nombre</h3>
+              <p>Con capucha y nombre bordado. Regalo ideal.</p>
+              <div class="product__foot"><span class="product__price">22,90 €</span><span class="product__ref">precio orientativo</span></div>
             </div>
           </article>
         </div>
-        <p class="gallery__note reveal">✳ Productos, imágenes y precios de ejemplo para esta demostración. Los sustituiremos por el catálogo real de la tienda.</p>
+        <p class="gallery__note reveal">✳ Imágenes ilustrativas y precios orientativos para esta demostración. Sustituiremos las fotos y los precios por los reales de la tienda.</p>
       </div>
     </section>
 
@@ -351,37 +427,6 @@
       </div>
     </section>
 
-    <!-- ====== GALERÍA / INSPIRACIÓN ====== -->
-    <section class="section section--tint" id="galeria">
-      <div class="container">
-        <header class="section__head reveal">
-          <span class="eyebrow">Inspiración</span>
-          <h2 class="section__title">Ideas para tu casa</h2>
-          <p class="section__sub">Filtra por estancia y encuentra la combinación que va contigo. Toca una imagen para verla en grande.</p>
-        </header>
-
-        <div class="filters reveal" role="tablist" aria-label="Filtrar inspiración">
-          <button class="filter is-active" data-filter="all">Todo</button>
-          <button class="filter" data-filter="dormitorio">Dormitorio</button>
-          <button class="filter" data-filter="ventanas">Ventanas</button>
-          <button class="filter" data-filter="bano">Baño</button>
-          <button class="filter" data-filter="mesa">Mesa</button>
-          <button class="filter" data-filter="bebe">Bebé</button>
-        </div>
-
-        <div class="gallery" id="gallery">
-          <figure class="shot reveal" data-tag="dormitorio" style="--h:34 30% 56%"><figcaption>Ropa de cama de lino</figcaption></figure>
-          <figure class="shot reveal" data-tag="ventanas" style="--h:38 42% 61%"><figcaption>Estores a medida</figcaption></figure>
-          <figure class="shot reveal" data-tag="bano" style="--h:28 22% 62%"><figcaption>Juego de toallas</figcaption></figure>
-          <figure class="shot reveal" data-tag="mesa" style="--h:20 34% 56%"><figcaption>Mantelería de mesa</figcaption></figure>
-          <figure class="shot reveal" data-tag="bebe" style="--h:30 26% 74%"><figcaption>Ajuar de bebé bordado</figcaption></figure>
-          <figure class="shot reveal" data-tag="dormitorio" style="--h:40 26% 66%"><figcaption>Boutis y colchas</figcaption></figure>
-          <figure class="shot reveal" data-tag="ventanas" style="--h:32 28% 52%"><figcaption>Paneles japoneses</figcaption></figure>
-          <figure class="shot reveal" data-tag="bano" style="--h:26 18% 68%"><figcaption>Albornoces</figcaption></figure>
-        </div>
-        <p class="gallery__note reveal">✳ Imágenes de muestra. Sustituiremos estas tarjetas por fotos reales de la tienda y de vuestros trabajos.</p>
-      </div>
-    </section>
 
     <!-- ====== NOSOTROS ====== -->
     <section class="section" id="nosotros">
