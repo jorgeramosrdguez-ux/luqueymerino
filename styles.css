@@ -113,18 +113,24 @@ h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; line-height: 1.08;
 .nav.is-stuck { box-shadow: var(--shadow-sm); border-color: var(--line); background: rgba(250,247,241,.94); }
 .nav__inner { display: flex; align-items: center; justify-content: space-between; padding: .7rem 24px; }
 
-.brand { display: flex; align-items: center; gap: .7rem; }
-.brand__mark {
-  width: 42px; height: 42px; flex: none;
-  display: grid; place-items: center;
-  background: var(--sage); color: var(--cream);
-  border-radius: 12px; font-family: var(--serif); font-weight: 600; font-size: 1.15rem;
-  letter-spacing: .02em; box-shadow: var(--shadow-sm);
+.brand { display: inline-flex; align-items: center; }
+
+/* Logotipo Luque & Merino (recreación de la firma de marca) */
+.logo { display: inline-flex; flex-direction: column; align-items: center; line-height: 1; }
+.logo__script {
+  font-family: "Great Vibes", "Segoe Script", cursive;
+  font-size: 2.2rem; color: var(--logo-gold, #bf9250); line-height: .9;
+  white-space: nowrap; letter-spacing: .01em;
 }
-.brand__text { display: flex; flex-direction: column; line-height: 1.05; }
-.brand__name { font-family: var(--serif); font-size: 1.35rem; font-weight: 600; color: var(--ink); }
-.brand__name em { color: var(--clay); font-style: italic; }
-.brand__tag { font-size: .64rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); }
+.logo__script em { font-style: normal; color: var(--logo-amp, #a9793a); }
+.logo__deco {
+  font-family: var(--sans); font-size: .58rem; font-weight: 600;
+  letter-spacing: .42em; text-transform: uppercase; color: var(--logo-deco, #8a7a63);
+  margin-top: .1rem; padding-left: .42em; /* compensa el tracking a la derecha */
+}
+.logo--footer { align-items: flex-start; }
+.logo--footer .logo__script { font-size: 2.4rem; --logo-gold: #d3a869; }
+.logo--footer .logo__deco { --logo-deco: #a49e91; }
 
 .nav__links { display: flex; align-items: center; gap: 1.6rem; }
 .nav__links a { font-size: .93rem; font-weight: 500; color: var(--ink); position: relative; padding: .3rem 0; }
@@ -318,8 +324,7 @@ h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; line-height: 1.08;
 /* ---------- Footer ---------- */
 .footer { background: #26241f; color: #cfc9bd; }
 .footer__grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.2fr; gap: 2rem; padding: 3.2rem 24px 2.4rem; }
-.footer__brand .brand__name { color: #f4f1ea; font-size: 1.6rem; }
-.footer__brand .brand__name em { color: var(--clay); }
+.footer__brand .logo { margin-bottom: .2rem; }
 .footer__brand p { color: #a49e91; font-size: .92rem; margin: .7rem 0 0; max-width: 34ch; }
 .footer__col h4 { font-family: var(--sans); font-size: .78rem; letter-spacing: .16em; text-transform: uppercase; color: #8f897c; margin-bottom: .9rem; }
 .footer__col a, .footer__col span { display: block; color: #cfc9bd; font-size: .92rem; padding: .22rem 0; transition: color .2s var(--ease); }
