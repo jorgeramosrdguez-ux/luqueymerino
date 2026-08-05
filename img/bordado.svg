@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-label="Bordados personalizados">
+  <ellipse cx="120" cy="152" rx="72" ry="8" fill="#7d1f2e" opacity=".10"/>
+  <!-- toalla doblada -->
+  <rect x="62" y="60" width="116" height="82" rx="10" fill="#f7f0e2"/>
+  <rect x="62" y="60" width="116" height="82" rx="10" fill="none" stroke="#e7ddca" stroke-width="2"/>
+  <!-- banda decorativa -->
+  <rect x="62" y="118" width="116" height="16" fill="#efe4cf"/>
+  <g stroke="#d9c9a6" stroke-width="1.5"><line x1="62" y1="123" x2="178" y2="123"/><line x1="62" y1="129" x2="178" y2="129"/></g>
+  <!-- monograma bordado -->
+  <circle cx="120" cy="95" r="22" fill="none" stroke="#7d1f2e" stroke-width="2" stroke-dasharray="4 4"/>
+  <path d="M120 88 q-8 -10 -15 -2 q-6 7 2 13 l13 12 13 -12 q8 -6 2 -13 q-7 -8 -15 2 z" fill="#a5324a"/>
+  <!-- aguja e hilo -->
+  <line x1="150" y1="66" x2="128" y2="88" stroke="#8a8f96" stroke-width="2"/>
+  <circle cx="151" cy="65" r="3" fill="#8a8f96"/>
+  <path d="M128 88 q-6 6 -2 12" fill="none" stroke="#a5324a" stroke-width="1.6"/>
+</svg>

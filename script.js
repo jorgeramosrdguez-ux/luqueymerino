@@ -17,22 +17,34 @@
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 
-  /* ---- Menú móvil ---- */
+  /* ---- Menú lateral (móvil) ---- */
   var toggle = document.getElementById("navToggle");
   var menu = document.getElementById("menu");
+  var backdrop = document.getElementById("navBackdrop");
+
+  function openMenu() {
+    if (!menu || !toggle) return;
+    menu.classList.add("is-open");
+    document.body.classList.add("menu-open");
+    if (backdrop) backdrop.hidden = false;
+    toggle.setAttribute("aria-expanded", "true");
+    toggle.setAttribute("aria-label", "Cerrar menú");
+  }
   function closeMenu() {
     if (!menu || !toggle) return;
     menu.classList.remove("is-open");
+    document.body.classList.remove("menu-open");
+    if (backdrop) backdrop.hidden = true;
     toggle.setAttribute("aria-expanded", "false");
     toggle.setAttribute("aria-label", "Abrir menú");
   }
   if (toggle && menu) {
     toggle.addEventListener("click", function () {
-      var open = menu.classList.toggle("is-open");
-      toggle.setAttribute("aria-expanded", String(open));
-      toggle.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+      if (menu.classList.contains("is-open")) closeMenu();
+      else openMenu();
     });
-    // Cerrar al pulsar un enlace
+    if (backdrop) backdrop.addEventListener("click", closeMenu);
+    // Cerrar al pulsar un enlace del menú
     menu.querySelectorAll("a").forEach(function (a) {
       a.addEventListener("click", closeMenu);
     });
@@ -61,31 +73,50 @@
     revealEls.forEach(function (el) { el.classList.add("is-visible"); });
   }
 
-  /* ---- Filtro del catálogo por categoría ---- */
+  /* ---- Catálogo: buscador + filtro por categoría ---- */
   var catFilters = document.querySelectorAll(".cat-filters .filter");
   var catItems = document.querySelectorAll("#catalog .product");
+  var searchInput = document.getElementById("catSearch");
+  var noResults = document.getElementById("noResults");
+  var activeFilter = "all";
 
-  function applyCatFilter(f) {
+  function refreshCatalog() {
+    var q = searchInput ? searchInput.value.trim().toLowerCase() : "";
+    var anyVisible = false;
+    catItems.forEach(function (item) {
+      var okCat = activeFilter === "all" || item.getAttribute("data-cat") === activeFilter;
+      var okSearch = q === "" || item.textContent.toLowerCase().indexOf(q) >= 0;
+      var show = okCat && okSearch;
+      item.classList.toggle("is-hidden", !show);
+      if (show) anyVisible = true;
+    });
+    if (noResults) noResults.hidden = anyVisible || catItems.length === 0;
+  }
+
+  function setFilter(f) {
+    activeFilter = f;
     catFilters.forEach(function (b) {
       b.classList.toggle("is-active", b.getAttribute("data-filter") === f);
     });
-    catItems.forEach(function (item) {
-      var show = f === "all" || item.getAttribute("data-cat") === f;
-      item.classList.toggle("is-hidden", !show);
-    });
+    refreshCatalog();
   }
 
   // Botones de filtro dentro del catálogo
   catFilters.forEach(function (btn) {
     btn.addEventListener("click", function () {
-      applyCatFilter(btn.getAttribute("data-filter"));
+      setFilter(btn.getAttribute("data-filter"));
     });
   });
 
-  // Accesos directos (tarjetas de categoría y menú "Colección") que filtran el catálogo
+  // Buscador en vivo
+  if (searchInput) {
+    searchInput.addEventListener("input", refreshCatalog);
+  }
+
+  // Accesos directos (tarjetas de categoría y menú) que filtran el catálogo
   document.querySelectorAll("[data-cat-filter]").forEach(function (el) {
     el.addEventListener("click", function () {
-      applyCatFilter(el.getAttribute("data-cat-filter"));
+      setFilter(el.getAttribute("data-cat-filter"));
     });
   });
 
