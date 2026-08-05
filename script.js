@@ -73,6 +73,38 @@
     revealEls.forEach(function (el) { el.classList.add("is-visible"); });
   }
 
+  /* ---- Carrusel del hero (rotación automática) ---- */
+  var carousel = document.getElementById("heroCarousel");
+  var dotsWrap = document.getElementById("heroDots");
+  if (carousel && dotsWrap) {
+    var slides = carousel.querySelectorAll(".slide");
+    var idx = 0, timer = null;
+    slides.forEach(function (s, i) {
+      var dot = document.createElement("button");
+      dot.type = "button";
+      dot.setAttribute("aria-label", "Imagen " + (i + 1));
+      if (i === 0) dot.classList.add("is-active");
+      dot.addEventListener("click", function () { go(i); restart(); });
+      dotsWrap.appendChild(dot);
+    });
+    var dots = dotsWrap.querySelectorAll("button");
+    function go(n) {
+      slides[idx].classList.remove("is-active");
+      dots[idx].classList.remove("is-active");
+      idx = (n + slides.length) % slides.length;
+      slides[idx].classList.add("is-active");
+      dots[idx].classList.add("is-active");
+    }
+    function start() { timer = setInterval(function () { go(idx + 1); }, 3800); }
+    function restart() { clearInterval(timer); start(); }
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduce) {
+      start();
+      carousel.addEventListener("mouseenter", function () { clearInterval(timer); });
+      carousel.addEventListener("mouseleave", start);
+    }
+  }
+
   /* ---- Catálogo: buscador + filtro por categoría ---- */
   var catFilters = document.querySelectorAll(".cat-filters .filter");
   var catItems = document.querySelectorAll("#catalog .product");

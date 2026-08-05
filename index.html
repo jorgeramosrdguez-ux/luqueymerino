@@ -58,9 +58,8 @@
   <header class="nav" id="nav">
     <div class="container nav__inner">
       <a href="#inicio" class="brand" aria-label="Luque y Merino Decoración, inicio">
-        <!-- Sube tu logo como img/logo.png y aparecerá aquí automáticamente -->
         <img class="logo__img" src="img/logo.png" alt="Luque &amp; Merino Decoración"
-             onload="this.closest('.brand').classList.add('has-img')" onerror="this.remove()" />
+             onload="this.classList.add('is-on')" onerror="this.remove()" />
         <span class="logo">
           <span class="logo__script">luque <em>&amp;</em> merino</span>
           <span class="logo__deco">Decoración</span>
@@ -124,6 +123,17 @@
             <li>✔ Bordamos nombres</li>
             <li>✔ Asesoramiento en tienda</li>
           </ul>
+        </div>
+
+        <div class="hero__showcase reveal">
+          <div class="carousel" id="heroCarousel" aria-label="Muestras de nuestros productos">
+            <figure class="slide is-active" data-tint="cortinas"><img src="img/cortinas.svg" alt="Cortinas y estores a medida" /><figcaption>Cortinas y estores a medida</figcaption></figure>
+            <figure class="slide" data-tint="cama"><img src="img/cama.svg" alt="Ropa de cama" /><figcaption>Ropa de cama y fundas nórdicas</figcaption></figure>
+            <figure class="slide" data-tint="toallas"><img src="img/toallas.svg" alt="Toallas" /><figcaption>Toallas y albornoces</figcaption></figure>
+            <figure class="slide" data-tint="bebe"><img src="img/bebe.svg" alt="Textil de bebé" /><figcaption>Bebé, con su nombre bordado</figcaption></figure>
+            <figure class="slide" data-tint="mantel"><img src="img/mantelerias.svg" alt="Mantelerías" /><figcaption>Mantelerías para tu mesa</figcaption></figure>
+          </div>
+          <div class="carousel__dots" id="heroDots" role="tablist" aria-label="Ir a la imagen"></div>
         </div>
       </div>
       <a href="#categorias" class="hero__scroll" aria-label="Desplázate hacia abajo">
