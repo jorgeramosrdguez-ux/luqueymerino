@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-label="Cortinas y estores">
+  <ellipse cx="120" cy="154" rx="90" ry="8" fill="#7a5a2b" opacity=".10"/>
+  <!-- ventana -->
+  <rect x="70" y="30" width="100" height="118" rx="6" fill="#e9dcc0"/>
+  <rect x="78" y="42" width="84" height="98" rx="3" fill="#f6efdd"/>
+  <line x1="120" y1="42" x2="120" y2="140" stroke="#e9dcc0" stroke-width="4"/>
+  <line x1="78" y1="91" x2="162" y2="91" stroke="#e9dcc0" stroke-width="4"/>
+  <!-- estor enrollable arriba -->
+  <rect x="70" y="30" width="100" height="34" rx="4" fill="#c99f5f"/>
+  <path d="M70 64 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0" fill="none" stroke="#a97e3e" stroke-width="3"/>
+  <line x1="120" y1="66" x2="120" y2="76" stroke="#a97e3e" stroke-width="2"/>
+  <circle cx="120" cy="78" r="3" fill="#a97e3e"/>
+  <!-- barra -->
+  <rect x="34" y="22" width="172" height="8" rx="4" fill="#8a6531"/>
+  <circle cx="36" cy="26" r="6" fill="#8a6531"/>
+  <circle cx="204" cy="26" r="6" fill="#8a6531"/>
+  <!-- cortinas laterales -->
+  <path d="M42 28 q12 60 0 120 q14 6 24 0 q-9 -60 0 -120 z" fill="#bd7a5c"/>
+  <path d="M198 28 q-12 60 0 120 q-14 6 -24 0 q9 -60 0 -120 z" fill="#bd7a5c"/>
+</svg>

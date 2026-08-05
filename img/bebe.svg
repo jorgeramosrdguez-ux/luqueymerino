@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-label="Textil de bebé">
+  <ellipse cx="120" cy="150" rx="74" ry="8" fill="#7a5a2b" opacity=".10"/>
+  <!-- manta doblada -->
+  <rect x="64" y="72" width="112" height="70" rx="14" fill="#f2e3c9"/>
+  <rect x="64" y="72" width="112" height="22" rx="14" fill="#e6d2ad"/>
+  <rect x="64" y="118" width="112" height="24" rx="12" fill="#f6ecd7"/>
+  <!-- cinta -->
+  <rect x="112" y="72" width="16" height="70" fill="#bd7a5c" opacity=".9"/>
+  <!-- lazo -->
+  <path d="M120 68 l-18 -13 q-7 11 7 15 z" fill="#c99f5f"/>
+  <path d="M120 68 l18 -13 q7 11 -7 15 z" fill="#c99f5f"/>
+  <circle cx="120" cy="68" r="4.5" fill="#a97e3e"/>
+  <!-- corazón bordado -->
+  <path d="M88 116 q-7 -9 -14 0 q-7 9 14 18 q21 -9 14 -18 q-7 -9 -14 0 z" fill="#bd7a5c" opacity=".9"/>
+</svg>

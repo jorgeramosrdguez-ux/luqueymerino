@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-label="Mantelerías">
+  <ellipse cx="120" cy="160" rx="74" ry="7" fill="#7a5a2b" opacity=".10"/>
+  <!-- patas mesa -->
+  <rect x="70" y="118" width="8" height="36" fill="#8a6531"/>
+  <rect x="162" y="118" width="8" height="36" fill="#8a6531"/>
+  <!-- mantel colgando -->
+  <path d="M40 96 h160 v18 q0 30 -16 30 h-128 q-16 0 -16 -30 z" fill="#f2e3c9"/>
+  <path d="M40 138 h160" stroke="#c99f5f" stroke-width="3" fill="none" opacity=".7"/>
+  <!-- tapa mesa -->
+  <ellipse cx="120" cy="96" rx="82" ry="14" fill="#fbf5ea"/>
+  <ellipse cx="120" cy="96" rx="82" ry="14" fill="none" stroke="#e0cba0" stroke-width="2"/>
+  <!-- plato -->
+  <ellipse cx="112" cy="93" rx="26" ry="9" fill="#ffffff" stroke="#e0cba0" stroke-width="2"/>
+  <ellipse cx="112" cy="93" rx="14" ry="5" fill="none" stroke="#e0cba0" stroke-width="1.5"/>
+  <!-- servilleta doblada -->
+  <rect x="150" y="84" width="26" height="15" rx="2" fill="#bd7a5c" transform="rotate(-8 163 91)"/>
+  <rect x="153" y="87" width="20" height="3" fill="#f4e6cf" transform="rotate(-8 163 91)" opacity=".8"/>
+</svg>

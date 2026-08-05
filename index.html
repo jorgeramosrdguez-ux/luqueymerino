@@ -65,7 +65,18 @@
       </a>
 
       <nav class="nav__links" id="menu">
-        <a href="#categorias">Colección</a>
+        <div class="nav__item nav__item--drop">
+          <a href="#categorias" class="nav__top">Colección
+            <svg class="nav__caret" viewBox="0 0 12 8" width="11" height="8" aria-hidden="true"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <div class="dropdown">
+            <a href="#cat-cama">Ropa de cama</a>
+            <a href="#cat-bano">Baño</a>
+            <a href="#cat-cortinas">Cortinas y estores</a>
+            <a href="#cat-mantelerias">Mantelerías</a>
+            <a href="#cat-bebe">Bebé e infantil</a>
+          </div>
+        </div>
         <a href="#a-medida">A medida</a>
         <a href="#bordado">Bordado</a>
         <a href="#galeria">Inspiración</a>
@@ -152,40 +163,40 @@
         </header>
 
         <div class="cats">
-          <a class="cat cat--lg reveal" href="#contacto" data-cat="cama">
-            <div class="cat__img" style="--h: 34 34% 58%"></div>
+          <a class="cat cat--lg reveal" id="cat-cama" href="#productos" data-cat="cama">
+            <div class="cat__img"><img src="img/cama.svg" alt="Ropa de cama" loading="lazy" /></div>
             <div class="cat__body">
               <h3>Ropa de cama</h3>
               <p>Sábanas, fundas nórdicas, edredones, boutis y mantas.</p>
-              <span class="cat__link">Ver más →</span>
+              <span class="cat__link">Ver productos →</span>
             </div>
           </a>
-          <a class="cat reveal" href="#contacto" data-cat="bano">
-            <div class="cat__img" style="--h: 28 20% 63%"></div>
+          <a class="cat reveal" id="cat-bano" href="#productos" data-cat="bano">
+            <div class="cat__img"><img src="img/albornoz.svg" alt="Baño: toallas y albornoces" loading="lazy" /></div>
             <div class="cat__body">
               <h3>Baño</h3>
               <p>Toallas, albornoces y alfombrillas.</p>
-              <span class="cat__link">Ver más →</span>
+              <span class="cat__link">Ver productos →</span>
             </div>
           </a>
-          <a class="cat reveal" href="#a-medida" data-cat="cortinas">
-            <div class="cat__img" style="--h: 38 42% 60%"></div>
+          <a class="cat reveal" id="cat-cortinas" href="#a-medida" data-cat="cortinas">
+            <div class="cat__img"><img src="img/cortinas.svg" alt="Cortinas y estores" loading="lazy" /></div>
             <div class="cat__body">
               <h3>Cortinas y estores</h3>
-              <p>Confección a medida y paneles japoneses.</p>
-              <span class="cat__link">Ver más →</span>
+              <p>Confección e instalación a medida y paneles japoneses.</p>
+              <span class="cat__link">Ver servicio →</span>
             </div>
           </a>
-          <a class="cat reveal" href="#contacto" data-cat="mantelerias">
-            <div class="cat__img" style="--h: 20 34% 55%"></div>
+          <a class="cat reveal" id="cat-mantelerias" href="#productos" data-cat="mantelerias">
+            <div class="cat__img"><img src="img/mantelerias.svg" alt="Mantelerías" loading="lazy" /></div>
             <div class="cat__body">
               <h3>Mantelerías</h3>
               <p>Manteles, caminos y servilletas para tu mesa.</p>
-              <span class="cat__link">Ver más →</span>
+              <span class="cat__link">Ver productos →</span>
             </div>
           </a>
-          <a class="cat cat--lg reveal" href="#bordado" data-cat="bebe">
-            <div class="cat__img" style="--h: 30 26% 74%"></div>
+          <a class="cat cat--lg reveal" id="cat-bebe" href="#bordado" data-cat="bebe">
+            <div class="cat__img"><img src="img/bebe.svg" alt="Textil de bebé e infantil" loading="lazy" /></div>
             <div class="cat__body">
               <h3>Bebé e infantil</h3>
               <p>Ropa de cuna, arrullos y toallas para el regalo perfecto — con su nombre bordado.</p>
@@ -196,26 +207,119 @@
       </div>
     </section>
 
+    <!-- ====== PRODUCTOS DESTACADOS (DEMO) ====== -->
+    <section class="section section--tint" id="productos">
+      <div class="container">
+        <header class="section__head reveal">
+          <span class="eyebrow">Escaparate</span>
+          <h2 class="section__title">Productos destacados</h2>
+          <p class="section__sub">Una muestra de lo que encontrarás en la tienda. Pregúntanos por cualquiera y te informamos de disponibilidad, colores y medidas.</p>
+        </header>
+
+        <div class="products">
+          <article class="product reveal">
+            <div class="product__img"><img src="img/toallas.svg" alt="Juego de toallas" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Baño</span>
+              <h3>Juego de toallas «Rizo Suave»</h3>
+              <p>100% algodón · 3 piezas (baño, lavabo y tocador)</p>
+              <div class="product__foot">
+                <span class="product__price">24,90 €</span>
+                <a class="product__ask" href="https://wa.me/34679381294?text=Hola,%20me%20interesa%20el%20juego%20de%20toallas%20Rizo%20Suave" target="_blank" rel="noopener">Preguntar</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="product reveal">
+            <div class="product__img"><img src="img/cama.svg" alt="Juego de sábanas" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Ropa de cama</span>
+              <h3>Juego de sábanas «Lino Nube»</h3>
+              <p>Algodón percal · encimera, bajera y fundas</p>
+              <div class="product__foot">
+                <span class="product__price">39,90 €</span>
+                <a class="product__ask" href="https://wa.me/34679381294?text=Hola,%20me%20interesa%20el%20juego%20de%20sábanas%20Lino%20Nube" target="_blank" rel="noopener">Preguntar</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="product reveal">
+            <div class="product__img"><img src="img/albornoz.svg" alt="Albornoz" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Baño</span>
+              <h3>Albornoz «Baño Cálido»</h3>
+              <p>Rizo suave · bordado del nombre incluido</p>
+              <div class="product__foot">
+                <span class="product__price">34,90 €</span>
+                <a class="product__ask" href="https://wa.me/34679381294?text=Hola,%20me%20interesa%20el%20albornoz%20Baño%20Cálido" target="_blank" rel="noopener">Preguntar</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="product reveal">
+            <div class="product__img"><img src="img/cortinas.svg" alt="Estor a medida" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Cortinas y estores</span>
+              <h3>Estor a medida «Día y Noche»</h3>
+              <p>Confección e instalación a domicilio</p>
+              <div class="product__foot">
+                <span class="product__price">Presupuesto</span>
+                <a class="product__ask" href="https://wa.me/34679381294?text=Hola,%20quiero%20presupuesto%20de%20un%20estor%20a%20medida" target="_blank" rel="noopener">Preguntar</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="product reveal">
+            <div class="product__img"><img src="img/mantelerias.svg" alt="Mantel" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Mantelerías</span>
+              <h3>Mantel «Mesa de Domingo»</h3>
+              <p>Resinado antimanchas · varias medidas</p>
+              <div class="product__foot">
+                <span class="product__price">29,90 €</span>
+                <a class="product__ask" href="https://wa.me/34679381294?text=Hola,%20me%20interesa%20el%20mantel%20Mesa%20de%20Domingo" target="_blank" rel="noopener">Preguntar</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="product reveal">
+            <div class="product__img"><img src="img/bebe.svg" alt="Arrullo de bebé" loading="lazy" /></div>
+            <div class="product__body">
+              <span class="product__cat">Bebé</span>
+              <h3>Arrullo de bebé «Primer Abrazo»</h3>
+              <p>Algodón suave · con nombre bordado</p>
+              <div class="product__foot">
+                <span class="product__price">27,90 €</span>
+                <a class="product__ask" href="https://wa.me/34679381294?text=Hola,%20me%20interesa%20el%20arrullo%20de%20bebé%20Primer%20Abrazo" target="_blank" rel="noopener">Preguntar</a>
+              </div>
+            </div>
+          </article>
+        </div>
+        <p class="gallery__note reveal">✳ Productos, imágenes y precios de ejemplo para esta demostración. Los sustituiremos por el catálogo real de la tienda.</p>
+      </div>
+    </section>
+
     <!-- ====== SERVICIO: CORTINAS A MEDIDA ====== -->
     <section class="feature" id="a-medida">
       <div class="container feature__inner">
         <div class="feature__media reveal">
           <div class="feature__photo feature__photo--curtains" aria-hidden="true"></div>
-          <div class="feature__badge">Medición y montaje incluidos</div>
+          <div class="feature__badge">Medición e instalación a domicilio</div>
         </div>
         <div class="feature__text reveal">
           <span class="eyebrow">Servicio estrella</span>
           <h2 class="section__title">Cortinas y estores a medida</h2>
-          <p>Elegimos contigo la tela, tomamos medidas y confeccionamos e instalamos en tu casa. Estores enrollables, paquetto, paneles japoneses o cortinas de toda la vida: la ventana perfecta, sin complicaciones.</p>
+          <p>Nos ocupamos de todo: elegimos contigo la tela, <strong>nuestro equipo se desplaza a tu casa para tomar medidas</strong>, confeccionamos e <strong>instalamos</strong>. Estores enrollables, paquetto, paneles japoneses o cortinas de toda la vida: la ventana perfecta, sin complicaciones.</p>
           <ul class="ticks">
             <li>Amplio muestrario de tejidos y estampados</li>
             <li>Asesoramiento sobre caídas, forros y sistemas</li>
-            <li>Confección propia y montaje profesional</li>
+            <li><strong>Medición e instalación a domicilio</strong> por nuestro equipo</li>
           </ul>
           <div class="feature__steps">
             <div class="step"><span>1</span>Nos cuentas tu ventana</div>
-            <div class="step"><span>2</span>Elegimos tela y medimos</div>
-            <div class="step"><span>3</span>Confeccionamos y montamos</div>
+            <div class="step"><span>2</span>Medimos en tu casa</div>
+            <div class="step"><span>3</span>Confeccionamos</div>
+            <div class="step"><span>4</span>Instalamos a domicilio</div>
           </div>
           <a href="#contacto" class="btn btn--primary">Pedir presupuesto sin compromiso</a>
         </div>

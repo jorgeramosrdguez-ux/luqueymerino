@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-label="Albornoz">
+  <ellipse cx="120" cy="158" rx="56" ry="7" fill="#7a5a2b" opacity=".10"/>
+  <!-- percha -->
+  <path d="M120 30 a6 6 0 1 1 0.1 0" fill="none" stroke="#8a6531" stroke-width="3"/>
+  <path d="M120 42 L76 66 M120 42 L164 66" stroke="#8a6531" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- cuerpo albornoz -->
+  <path d="M76 64 q44 -15 88 0 l-9 20 -13 -6 v70 q-23 8 -41 0 v-70 l-13 6 z" fill="#f2e3c9"/>
+  <!-- solapas -->
+  <path d="M120 60 l-15 22 7 62 h16 l7 -62 z" fill="#e6d2ad"/>
+  <!-- cinturón -->
+  <rect x="96" y="112" width="48" height="9" rx="3" fill="#c99f5f"/>
+  <rect x="118" y="112" width="8" height="9" fill="#a97e3e"/>
+</svg>

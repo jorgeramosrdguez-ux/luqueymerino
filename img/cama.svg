@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-label="Ropa de cama">
+  <ellipse cx="120" cy="154" rx="98" ry="9" fill="#7a5a2b" opacity=".10"/>
+  <!-- cabecero -->
+  <rect x="34" y="40" width="172" height="46" rx="12" fill="#c99f5f"/>
+  <rect x="34" y="40" width="172" height="46" rx="12" fill="#a97e3e" opacity=".18"/>
+  <!-- base -->
+  <rect x="30" y="120" width="180" height="26" rx="6" fill="#8a6531"/>
+  <!-- colchón / edredón -->
+  <rect x="36" y="86" width="168" height="40" rx="10" fill="#f2e3c9"/>
+  <path d="M36 102 q84 -16 168 0 v9 q-84 -14 -168 0 z" fill="#e6d2ad"/>
+  <!-- almohadas -->
+  <rect x="48" y="70" width="62" height="32" rx="13" fill="#fbf5ea" stroke="#e0cba0" stroke-width="2"/>
+  <rect x="120" y="70" width="62" height="32" rx="13" fill="#fbf5ea" stroke="#e0cba0" stroke-width="2"/>
+</svg>
