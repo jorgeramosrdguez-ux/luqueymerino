@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- No indexar NUNCA esta página en buscadores -->
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <title>Panel · Luque &amp; Merino</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --garnet:#7d1f2e; --garnet-dark:#5f1723; --garnet-soft:#f8eef0;
+      --gold:#c8a15a; --ink:#241f22; --ink-soft:#6b6068; --line:#eae4e2;
+      --bg:#f7f5f4; --white:#fff; --radius:14px; --ok:#1f7d4d; --danger:#b3261e;
+      --serif:"Cormorant Garamond",Georgia,serif;
+      --sans:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+      --shadow:0 10px 30px rgba(44,42,38,.10);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.5}
+    h1,h2,h3{font-family:var(--serif);margin:0;font-weight:600;line-height:1.1}
+    a{color:var(--garnet-dark)}
+    .hidden{display:none !important}
+
+    /* ---- Barra superior ---- */
+    .top{background:var(--garnet);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .top__brand{font-family:var(--serif);font-size:1.4rem;letter-spacing:.5px}
+    .top__brand small{display:block;font-family:var(--sans);font-size:.62rem;letter-spacing:3px;text-transform:uppercase;opacity:.85}
+    .top__right{display:flex;align-items:center;gap:14px;font-size:.9rem}
+    .btn{font-family:var(--sans);font-weight:600;border:0;border-radius:999px;padding:.7rem 1.3rem;cursor:pointer;font-size:.95rem;transition:.2s;display:inline-flex;align-items:center;gap:.4rem}
+    .btn--primary{background:var(--garnet);color:#fff}
+    .btn--primary:hover{background:var(--garnet-dark)}
+    .btn--gold{background:var(--gold);color:#2a2320}
+    .btn--gold:hover{filter:brightness(1.05)}
+    .btn--ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+    .btn--ghost:hover{border-color:var(--garnet);color:var(--garnet-dark)}
+    .btn--light{background:rgba(255,255,255,.15);color:#fff}
+    .btn--light:hover{background:rgba(255,255,255,.28)}
+    .btn--sm{padding:.45rem .8rem;font-size:.85rem}
+    .btn--danger{background:transparent;border:1px solid #e7c9c6;color:var(--danger)}
+    .btn--danger:hover{background:#fbeceb}
+
+    /* ---- Login ---- */
+    .login-wrap{min-height:calc(100vh - 0px);display:flex;align-items:center;justify-content:center;padding:24px}
+    .login{background:var(--white);border-radius:22px;box-shadow:var(--shadow);padding:38px 34px;max-width:400px;width:100%;text-align:center}
+    .login__logo{width:60px;height:60px;border-radius:50%;background:var(--garnet);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:1.5rem;margin:0 auto 18px}
+    .login h1{font-size:1.9rem;margin-bottom:4px}
+    .login p{color:var(--ink-soft);margin:0 0 22px;font-size:.95rem}
+    .field{text-align:left;margin-bottom:14px}
+    .field label{display:block;font-size:.82rem;font-weight:600;margin-bottom:6px;color:var(--ink-soft)}
+    .field input,.field select,.field textarea{width:100%;padding:.8rem .9rem;border:1px solid var(--line);border-radius:10px;font-family:var(--sans);font-size:1rem;background:#fff;color:var(--ink)}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:var(--garnet);box-shadow:0 0 0 3px var(--garnet-soft)}
+    .msg{font-size:.9rem;margin-top:10px;min-height:1.2em}
+    .msg--err{color:var(--danger)}
+    .msg--ok{color:var(--ok)}
+
+    /* ---- Panel ---- */
+    .wrap{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+    .panel-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin:8px 0 22px}
+    .panel-head h1{font-size:2rem}
+    .panel-head p{margin:2px 0 0;color:var(--ink-soft);font-size:.92rem}
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+    .toolbar input[type=search]{flex:1;min-width:180px;padding:.7rem .9rem;border:1px solid var(--line);border-radius:10px;font-size:.95rem}
+    .count{color:var(--ink-soft);font-size:.85rem;margin-left:auto}
+
+    /* ---- Barra de categorías (filtro) ---- */
+    .catbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+    .cpill{font-family:var(--sans);font-weight:600;font-size:.85rem;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:.45rem .9rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.4rem}
+    .cpill:hover{border-color:var(--garnet)}
+    .cpill.is-active{background:var(--garnet);border-color:var(--garnet);color:#fff}
+    .cpill .n{font-size:.72rem;opacity:.7}
+    .cpill.is-active .n{opacity:.9}
+
+    /* ---- Lista de productos ---- */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+    .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px;display:flex;gap:12px;align-items:flex-start}
+    .card.is-off{opacity:.55}
+    .card__img{width:64px;height:64px;flex:0 0 64px;border-radius:10px;background:var(--garnet-soft);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .card__img img{width:100%;height:100%;object-fit:contain;padding:6px}
+    .card__body{flex:1;min-width:0}
+    .card__cat{font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--garnet-dark);font-weight:700}
+    .card__name{font-family:var(--serif);font-size:1.15rem;margin:2px 0}
+    .card__desc{font-size:.82rem;color:var(--ink-soft);margin:0 0 6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .card__price{font-weight:700}
+    .card__old{color:var(--ink-soft);text-decoration:line-through;font-weight:500;margin-right:6px;font-size:.85em}
+    .tags{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+    .tag{font-size:.68rem;font-weight:700;padding:.15rem .5rem;border-radius:999px;letter-spacing:.5px}
+    .tag--offer{background:#fdeef0;color:var(--garnet)}
+    .tag--off{background:#f0efee;color:var(--ink-soft)}
+    .card__actions{display:flex;gap:8px;flex-wrap:wrap}
+
+    /* ---- Modal ---- */
+    .overlay{position:fixed;inset:0;background:rgba(36,31,34,.5);display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow:auto;z-index:50}
+    .modal{background:#fff;border-radius:18px;box-shadow:var(--shadow);width:100%;max-width:560px;padding:26px;margin:auto}
+    .modal h2{font-size:1.6rem;margin-bottom:16px}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .check{display:flex;align-items:center;gap:8px;margin:4px 0}
+    .check input{width:18px;height:18px}
+    .modal__foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+    .offer-fields{background:var(--garnet-soft);border-radius:12px;padding:12px 14px;margin-top:4px}
+    .empty{text-align:center;padding:50px 20px;color:var(--ink-soft)}
+    @media(max-width:520px){.row2{grid-template-columns:1fr}.top__brand small{display:none}}
+  </style>
+</head>
+<body>
+
+  <!-- ====== LOGIN ====== -->
+  <section id="loginView" class="login-wrap">
+    <form class="login" id="loginForm" autocomplete="on">
+      <div class="login__logo">L&amp;M</div>
+      <h1>Panel privado</h1>
+      <p>Acceso solo para la tienda</p>
+      <div class="field">
+        <label for="email">Correo</label>
+        <input type="email" id="email" required autocomplete="username" placeholder="tucorreo@ejemplo.com" />
+      </div>
+      <div class="field">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••" />
+      </div>
+      <button class="btn btn--primary" type="submit" id="loginBtn" style="width:100%;justify-content:center;margin-top:6px">Entrar</button>
+      <div class="msg msg--err" id="loginMsg"></div>
+      <p style="margin-top:18px;font-size:.8rem"><a href="index.html">← Volver a la web</a></p>
+    </form>
+  </section>
+
+  <!-- ====== PANEL ====== -->
+  <div id="appView" class="hidden">
+    <div class="top">
+      <div class="top__brand">Luque &amp; Merino<small>Panel de gestión</small></div>
+      <div class="top__right">
+        <span id="userEmail"></span>
+        <a class="btn btn--light btn--sm" href="index.html" target="_blank" rel="noopener">Ver web</a>
+        <button class="btn btn--light btn--sm" id="logoutBtn">Salir</button>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="panel-head">
+        <div>
+          <h1>Productos</h1>
+          <p>Añade, edita o quita productos y ofertas. Los cambios se ven en la web al instante.</p>
+        </div>
+        <button class="btn btn--primary" id="addBtn">+ Nuevo producto</button>
+      </div>
+
+      <div class="catbar" id="catbar"></div>
+
+      <div class="toolbar">
+        <input type="search" id="search" placeholder="Buscar producto…" />
+        <button class="btn btn--ghost btn--sm" id="addCatBtn" type="button">+ Categoría</button>
+        <span class="count" id="count"></span>
+      </div>
+
+      <div id="list" class="grid"></div>
+      <div id="empty" class="empty hidden">Todavía no hay productos. Pulsa <strong>“+ Nuevo producto”</strong> para empezar.</div>
+    </div>
+  </div>
+
+  <!-- ====== MODAL FORM ====== -->
+  <div id="overlay" class="overlay hidden">
+    <form class="modal" id="productForm">
+      <h2 id="modalTitle">Nuevo producto</h2>
+      <input type="hidden" id="pid" />
+
+      <div class="field">
+        <label for="pname">Nombre *</label>
+        <input type="text" id="pname" required placeholder="Ej. Juego de sábanas" />
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="pcategory">Categoría *</label>
+          <select id="pcategory" required></select>
+        </div>
+        <div class="field">
+          <label for="pimage">Imagen</label>
+          <select id="pimage"></select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="pdesc">Descripción corta</label>
+        <textarea id="pdesc" rows="2" placeholder="Ej. Algodón · encimera, bajera y fundas."></textarea>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="pprice">Precio</label>
+          <input type="text" id="pprice" placeholder='Ej. 32,90 €  ·  o "Presupuesto"' />
+        </div>
+        <div class="field">
+          <label for="porder">Orden (menor = antes)</label>
+          <input type="number" id="porder" value="100" />
+        </div>
+      </div>
+
+      <div class="check"><input type="checkbox" id="pactive" checked /><label for="pactive" style="margin:0">Visible en la web</label></div>
+      <div class="check"><input type="checkbox" id="pfeatured" /><label for="pfeatured" style="margin:0">⭐ Destacado <span style="color:var(--ink-soft);font-weight:400">(sale en el carrusel del inicio)</span></label></div>
+      <div class="check"><input type="checkbox" id="poffer" /><label for="poffer" style="margin:0">🏷️ Está en oferta</label></div>
+
+      <div class="offer-fields hidden" id="offerFields">
+        <div class="row2">
+          <div class="field" style="margin:0">
+            <label for="pdiscount">Descuento (%)</label>
+            <input type="number" id="pdiscount" placeholder="Ej. 30" />
+          </div>
+          <div class="field" style="margin:0">
+            <label for="poldprice">Precio anterior</label>
+            <input type="text" id="poldprice" placeholder="Ej. 24,90 €" />
+          </div>
+        </div>
+      </div>
+
+      <div class="msg msg--err" id="formMsg"></div>
+      <div class="modal__foot">
+        <button type="button" class="btn btn--ghost" id="cancelBtn">Cancelar</button>
+        <button type="submit" class="btn btn--primary" id="saveBtn">Guardar</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

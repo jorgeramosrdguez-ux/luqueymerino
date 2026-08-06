@@ -22,15 +22,40 @@ atractiva, interactiva y que funcione como escaparate y publicidad del negocio.
 
 ## Tecnología
 
-Web **estática** (HTML + CSS + JavaScript, sin dependencias ni build):
+Web **estática** (HTML + CSS + JavaScript, sin build) con **base de datos gestionada**
+(Supabase) para el catálogo:
 
 ```
-index.html   → estructura y contenido
-styles.css   → diseño (paleta textil premium, responsive, animaciones)
-script.js    → menú móvil, filtros, lightbox, scroll reveal, formulario → WhatsApp
+index.html         → estructura y contenido
+styles.css         → diseño (paleta textil premium, responsive, animaciones)
+script.js          → menú móvil, filtros, carrusel, catálogo dinámico, formulario → WhatsApp
+supabase-config.js → URL y clave pública de Supabase (seguras de exponer)
+admin.html/admin.js→ panel privado de gestión (/admin)
+supabase-setup.sql → script para crear las tablas y cargar el catálogo inicial
 ```
 
-Solo carga las fuentes de Google Fonts por CDN. No necesita servidor ni compilación.
+Carga Google Fonts y la librería de Supabase por CDN. No necesita servidor ni compilación.
+
+## Panel de administración (`/admin`)
+
+Página **oculta** (no enlazada, con `noindex`) y **protegida por usuario y contraseña**.
+Solo quien escribe `/admin` en el navegador ve el acceso. Desde ahí se puede:
+
+- **Añadir, editar y eliminar** productos, con su **categoría**.
+- Marcar productos como **⭐ Destacados** (aparecen en el carrusel del inicio) o **🏷️ en oferta**.
+- **Filtrar por categoría** y buscar.
+- **Crear categorías nuevas**.
+
+Los cambios se reflejan en la web al instante. Si la base de datos no responde, la web
+muestra un catálogo de demostración de respaldo.
+
+### Puesta en marcha de la base de datos
+
+1. Crear un proyecto en [supabase.com](https://supabase.com) (plan gratuito).
+2. Copiar la **Project URL** y la **publishable key** (Project Settings → API) a `supabase-config.js`.
+3. Pegar el contenido de `supabase-setup.sql` en **SQL Editor → New query → Run**.
+4. Crear los usuarios administradores en **Authentication → Users → Add user**
+   (marcando *Auto Confirm User*).
 
 ## Ver en local
 

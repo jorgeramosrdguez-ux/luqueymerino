@@ -76,10 +76,18 @@
   /* ---- Carrusel del hero (rotación automática) ---- */
   var carousel = document.getElementById("heroCarousel");
   var dotsWrap = document.getElementById("heroDots");
-  if (carousel && dotsWrap) {
+  var heroTimer = null;
+
+  function initCarousel() {
+    if (!carousel || !dotsWrap) return;
+    if (heroTimer) { clearInterval(heroTimer); heroTimer = null; }
+    dotsWrap.innerHTML = "";
+
     var slides = carousel.querySelectorAll(".slide");
-    var idx = 0, timer = null;
+    if (!slides.length) return;
+    var idx = 0;
     slides.forEach(function (s, i) {
+      s.classList.toggle("is-active", i === 0);
       var dot = document.createElement("button");
       dot.type = "button";
       dot.setAttribute("aria-label", "Imagen " + (i + 1));
@@ -95,50 +103,70 @@
       slides[idx].classList.add("is-active");
       dots[idx].classList.add("is-active");
     }
-    function start() { timer = setInterval(function () { go(idx + 1); }, 3800); }
-    function restart() { clearInterval(timer); start(); }
+    function start() { heroTimer = setInterval(function () { go(idx + 1); }, 3800); }
+    function restart() { clearInterval(heroTimer); start(); }
     var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!reduce) {
+    if (!reduce && slides.length > 1) {
       start();
-      carousel.addEventListener("mouseenter", function () { clearInterval(timer); });
-      carousel.addEventListener("mouseleave", start);
+      carousel.onmouseenter = function () { clearInterval(heroTimer); };
+      carousel.onmouseleave = start;
     }
   }
+  initCarousel();
 
   /* ---- Catálogo: buscador + filtro por categoría ---- */
   var catFilters = document.querySelectorAll(".cat-filters .filter");
-  var catItems = document.querySelectorAll("#catalog .product");
+  var catalogEl = document.getElementById("catalog");
   var searchInput = document.getElementById("catSearch");
   var noResults = document.getElementById("noResults");
   var activeFilter = "all";
 
+  // Se consultan en vivo para que funcione también con los
+  // productos que se cargan desde la base de datos.
+  function getItems() {
+    return catalogEl ? catalogEl.querySelectorAll(".product") : [];
+  }
+
   function refreshCatalog() {
     var q = searchInput ? searchInput.value.trim().toLowerCase() : "";
     var anyVisible = false;
-    catItems.forEach(function (item) {
-      var okCat = activeFilter === "all" || item.getAttribute("data-cat") === activeFilter;
+    var items = getItems();
+    items.forEach(function (item) {
+      var okCat;
+      if (activeFilter === "all") {
+        okCat = true;
+      } else if (activeFilter === "ofertas") {
+        okCat = item.getAttribute("data-offer") === "1";
+      } else {
+        okCat = item.getAttribute("data-cat") === activeFilter;
+      }
       var okSearch = q === "" || item.textContent.toLowerCase().indexOf(q) >= 0;
       var show = okCat && okSearch;
       item.classList.toggle("is-hidden", !show);
       if (show) anyVisible = true;
     });
-    if (noResults) noResults.hidden = anyVisible || catItems.length === 0;
+    if (noResults) noResults.hidden = anyVisible || items.length === 0;
   }
+
+  var catFiltersWrap = document.querySelector(".cat-filters");
 
   function setFilter(f) {
     activeFilter = f;
-    catFilters.forEach(function (b) {
+    document.querySelectorAll(".cat-filters .filter").forEach(function (b) {
       b.classList.toggle("is-active", b.getAttribute("data-filter") === f);
     });
     refreshCatalog();
   }
 
-  // Botones de filtro dentro del catálogo
-  catFilters.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      setFilter(btn.getAttribute("data-filter"));
+  // Delegación: sirve también para los filtros generados desde la base de datos
+  if (catFiltersWrap) {
+    catFiltersWrap.addEventListener("click", function (e) {
+      var btn = e.target.closest(".filter");
+      if (btn && catFiltersWrap.contains(btn)) {
+        setFilter(btn.getAttribute("data-filter"));
+      }
     });
-  });
+  }
 
   // Buscador en vivo
   if (searchInput) {
@@ -151,6 +179,122 @@
       setFilter(el.getAttribute("data-cat-filter"));
     });
   });
+
+  /* ---- Catálogo dinámico desde Supabase ---- */
+  function escapeHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function productCard(p) {
+    var cats = window.LYM_CATEGORIES || {};
+    var catLabel = cats[p.category] || p.category || "";
+    var isOffer = !!p.is_offer;
+    var price = (p.price || "").trim();
+    var ref = /presupuesto/i.test(price) ? "a medida" : "precio orientativo";
+    var img = "img/" + (p.image || "cama.svg");
+
+    var badge = "";
+    if (isOffer && p.discount_pct) {
+      badge = '<span class="product__badge">-' + escapeHtml(p.discount_pct) + '%</span>';
+    }
+    var priceHtml;
+    if (isOffer && p.old_price) {
+      priceHtml = '<span class="product__old">' + escapeHtml(p.old_price) + '</span> ' + escapeHtml(price);
+    } else {
+      priceHtml = escapeHtml(price);
+    }
+
+    var art = document.createElement("article");
+    art.className = "product reveal is-visible" + (isOffer ? " product--offer" : "");
+    art.setAttribute("data-cat", p.category || "");
+    art.setAttribute("data-offer", isOffer ? "1" : "0");
+    art.innerHTML =
+      '<div class="product__img">' + badge +
+        '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(p.name) + '" loading="lazy" />' +
+      '</div>' +
+      '<div class="product__body">' +
+        '<span class="product__cat">' + escapeHtml(catLabel) + '</span>' +
+        '<h3>' + escapeHtml(p.name) + '</h3>' +
+        '<p>' + escapeHtml(p.description || "") + '</p>' +
+        '<div class="product__foot">' +
+          '<span class="product__price">' + priceHtml + '</span>' +
+          '<span class="product__ref">' + ref + '</span>' +
+        '</div>' +
+      '</div>';
+    return art;
+  }
+
+  // Reconstruye las pastillas de filtro según las categorías que
+  // realmente tienen productos (así las categorías nuevas aparecen solas).
+  function renderFilters(rows, catMeta) {
+    if (!catFiltersWrap) return;
+    var order = {}, labels = {};
+    (catMeta || []).forEach(function (c, i) { order[c.slug] = c.sort_order != null ? c.sort_order : i; labels[c.slug] = c.label; });
+    var cats = {}, hasOffer = false;
+    rows.forEach(function (p) {
+      if (p.category) cats[p.category] = true;
+      if (p.is_offer) hasOffer = true;
+    });
+    var list = Object.keys(cats).sort(function (a, b) {
+      return (order[a] != null ? order[a] : 999) - (order[b] != null ? order[b] : 999);
+    });
+    var html = '<button class="filter is-active" data-filter="all">Todo</button>';
+    list.forEach(function (slug) {
+      var label = labels[slug] || (window.LYM_CATEGORIES && window.LYM_CATEGORIES[slug]) || slug;
+      html += '<button class="filter" data-filter="' + escapeHtml(slug) + '">' + escapeHtml(label) + '</button>';
+    });
+    if (hasOffer) html += '<button class="filter" data-filter="ofertas">Ofertas</button>';
+    catFiltersWrap.innerHTML = html;
+    activeFilter = "all";
+  }
+
+  // Reconstruye el carrusel del hero con los productos marcados como destacados.
+  function renderHero(featured) {
+    if (!carousel || !featured.length) return;
+    carousel.innerHTML = "";
+    featured.forEach(function (p) {
+      var fig = document.createElement("figure");
+      fig.className = "slide";
+      fig.setAttribute("data-tint", p.category || "");
+      fig.innerHTML =
+        '<img src="img/' + escapeHtml(p.image || "cama.svg") + '" alt="' + escapeHtml(p.name) + '" />' +
+        '<figcaption>' + escapeHtml(p.name) + '</figcaption>';
+      carousel.appendChild(fig);
+    });
+    initCarousel();
+  }
+
+  function loadCatalog() {
+    var cfg = window.LYM_SUPABASE;
+    if (!catalogEl || !cfg || !window.supabase) return;
+    try {
+      var sb = window.supabase.createClient(cfg.url, cfg.key);
+      // Categorías (para orden y nombres) y productos activos, en paralelo.
+      var pCats = sb.from("lym_categories").select("*").order("sort_order", { ascending: true });
+      var pProd = sb.from(cfg.table).select("*").eq("active", true).order("sort_order", { ascending: true });
+
+      Promise.all([pCats, pProd]).then(function (results) {
+        var catMeta = (results[0] && results[0].data) || [];
+        var prod = results[1] || {};
+        if (prod.error) { console.warn("Catálogo: usando demo (", prod.error.message, ")"); return; }
+        var rows = prod.data || [];
+        if (!rows.length) return; // base de datos vacía → se queda la demo
+
+        renderFilters(rows, catMeta);
+        catalogEl.innerHTML = "";
+        rows.forEach(function (p) { catalogEl.appendChild(productCard(p)); });
+        refreshCatalog();
+
+        var featured = rows.filter(function (p) { return p.is_featured; });
+        renderHero(featured);
+      }).catch(function (e) { console.warn("Catálogo: usando demo (", e && e.message, ")"); });
+    } catch (e) {
+      console.warn("Catálogo: Supabase no disponible, usando demo.");
+    }
+  }
+  loadCatalog();
 
   /* ---- Formulario → WhatsApp ---- */
   var form = document.getElementById("contactForm");
