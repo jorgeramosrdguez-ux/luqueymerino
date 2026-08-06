@@ -210,6 +210,7 @@
     art.className = "product reveal is-visible" + (isOffer ? " product--offer" : "");
     art.setAttribute("data-cat", p.category || "");
     art.setAttribute("data-offer", isOffer ? "1" : "0");
+    if (p.id != null) art.setAttribute("data-id", p.id);
     art.innerHTML =
       '<div class="product__img">' + badge +
         '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(p.name) + '" loading="lazy" />' +
@@ -258,12 +259,33 @@
       var fig = document.createElement("figure");
       fig.className = "slide";
       fig.setAttribute("data-tint", p.category || "");
+      if (p.id != null) fig.setAttribute("data-id", p.id);
+      fig.style.cursor = "pointer";
+      fig.title = "Ver “" + p.name + "” en el catálogo";
       fig.innerHTML =
         '<img src="img/' + escapeHtml(p.image || "cama.svg") + '" alt="' + escapeHtml(p.name) + '" />' +
         '<figcaption>' + escapeHtml(p.name) + '</figcaption>';
       carousel.appendChild(fig);
     });
+    // Clic en un destacado → salta a ese producto en el catálogo.
+    carousel.onclick = function (e) {
+      var fig = e.target.closest(".slide");
+      if (fig && fig.getAttribute("data-id")) goToProduct(fig.getAttribute("data-id"));
+    };
     initCarousel();
+  }
+
+  // Lleva la vista al producto indicado dentro del catálogo y lo resalta.
+  function goToProduct(id) {
+    setFilter("all");
+    if (searchInput) { searchInput.value = ""; refreshCatalog(); }
+    var card = catalogEl && catalogEl.querySelector('[data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
+    if (!card) return;
+    card.classList.remove("is-hidden");
+    var y = card.getBoundingClientRect().top + window.scrollY - 90;
+    window.scrollTo({ top: y, behavior: "smooth" });
+    card.classList.add("is-highlight");
+    setTimeout(function () { card.classList.remove("is-highlight"); }, 2200);
   }
 
   function loadCatalog() {

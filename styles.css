@@ -303,6 +303,17 @@ body.menu-open { overflow: hidden; }
 .product__price { font-family: var(--serif); font-size: 1.6rem; font-weight: 600; color: var(--sage-dark); }
 .product__ref { font-size: .74rem; color: var(--ink-soft); font-style: italic; }
 .product.is-hidden { display: none; }
+/* Resalte al llegar desde un destacado del carrusel */
+.product.is-highlight { animation: lymHighlight 2.2s var(--ease); }
+@keyframes lymHighlight {
+  0%   { box-shadow: 0 0 0 4px rgba(125,31,46,.55), var(--shadow-lg); transform: translateY(-4px); }
+  70%  { box-shadow: 0 0 0 4px rgba(125,31,46,.35), var(--shadow-lg); transform: translateY(-4px); }
+  100% { box-shadow: 0 0 0 0 rgba(125,31,46,0); transform: none; }
+}
+/* Los destacados del carrusel invitan a pulsar */
+.carousel .slide { cursor: pointer; }
+.carousel .slide figcaption { transition: color .2s var(--ease); }
+.carousel .slide:hover figcaption { color: var(--sage-dark); text-decoration: underline; }
 
 /* ---- Destacados ---- */
 .featured { margin-bottom: 2.6rem; }

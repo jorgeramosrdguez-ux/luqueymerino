@@ -188,8 +188,8 @@
 
       <div class="row2">
         <div class="field">
-          <label for="pprice">Precio</label>
-          <input type="text" id="pprice" placeholder='Ej. 32,90 €  ·  o "Presupuesto"' />
+          <label for="pprice">Precio normal</label>
+          <input type="text" id="pprice" placeholder='Ej. 32,90  ·  o "Presupuesto"' />
         </div>
         <div class="field">
           <label for="porder">Orden (menor = antes)</label>
@@ -202,16 +202,11 @@
       <div class="check"><input type="checkbox" id="poffer" /><label for="poffer" style="margin:0">🏷️ Está en oferta</label></div>
 
       <div class="offer-fields hidden" id="offerFields">
-        <div class="row2">
-          <div class="field" style="margin:0">
-            <label for="pdiscount">Descuento (%)</label>
-            <input type="number" id="pdiscount" placeholder="Ej. 30" />
-          </div>
-          <div class="field" style="margin:0">
-            <label for="poldprice">Precio anterior</label>
-            <input type="text" id="poldprice" placeholder="Ej. 24,90 €" />
-          </div>
+        <div class="field" style="margin:0">
+          <label for="pdiscount">Descuento (%)</label>
+          <input type="number" id="pdiscount" min="1" max="99" placeholder="Ej. 20" />
         </div>
+        <p id="offerPreview" style="margin:.6rem 0 0;font-size:.92rem;color:var(--garnet-dark)"></p>
       </div>
 
       <div class="msg msg--err" id="formMsg"></div>

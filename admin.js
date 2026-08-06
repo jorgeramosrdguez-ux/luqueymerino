@@ -37,6 +37,33 @@
     return c ? c.label : (window.LYM_CATEGORIES && window.LYM_CATEGORIES[slug]) || slug || "—";
   }
 
+  // Convierte lo que se escribe (32.90, 32,90, "32,90 €"…) a número.
+  // Si no es numérico (p. ej. "Presupuesto"), devuelve null.
+  function parsePrice(str) {
+    if (str == null) return null;
+    var s = String(str).replace(/[€\s]/g, "").trim();
+    if (!s || !/[0-9]/.test(s)) return null;
+    if (s.indexOf(",") >= 0 && s.indexOf(".") >= 0) {
+      s = s.replace(/\./g, "").replace(",", ".");   // 1.234,56 → 1234.56
+    } else if (s.indexOf(",") >= 0) {
+      s = s.replace(",", ".");                        // 32,90 → 32.90
+    }
+    var n = parseFloat(s);
+    return isNaN(n) ? null : n;
+  }
+  // Formatea un número como euros españoles: 32.9 → "32,90 €"
+  function formatEuro(n) {
+    return new Intl.NumberFormat("es-ES", {
+      style: "currency", currency: "EUR",
+      minimumFractionDigits: 2, maximumFractionDigits: 2
+    }).format(n);
+  }
+  // Deja el precio "normal" bien formateado (o tal cual si es texto tipo "Presupuesto").
+  function normalizePrice(str) {
+    var n = parsePrice(str);
+    return n != null ? formatEuro(n) : String(str || "").trim();
+  }
+
   /* ============ AUTENTICACIÓN ============ */
   function showLogin() { el("loginView").classList.remove("hidden"); el("appView").classList.add("hidden"); }
   function showApp(user) {
@@ -105,12 +132,19 @@
   function renderCatbar() {
     var bar = el("catbar");
     var counts = {}; state.products.forEach(function (p) { counts[p.category] = (counts[p.category] || 0) + 1; });
-    var html = '<button class="cpill' + (state.filterCat === "all" ? " is-active" : "") +
-      '" data-cat="all">Todos <span class="n">' + state.products.length + '</span></button>';
+    var nFeatured = state.products.filter(function (p) { return p.is_featured; }).length;
+    var nOffers = state.products.filter(function (p) { return p.is_offer; }).length;
+
+    function pill(key, label, n) {
+      return '<button class="cpill' + (state.filterCat === key ? " is-active" : "") +
+        '" data-cat="' + esc(key) + '">' + label + ' <span class="n">' + n + '</span></button>';
+    }
+
+    var html = pill("all", "Todos", state.products.length);
+    html += pill("featured", "⭐ Destacados", nFeatured);
+    html += pill("offers", "🏷️ Ofertas", nOffers);
     state.categories.forEach(function (c) {
-      html += '<button class="cpill' + (state.filterCat === c.slug ? " is-active" : "") +
-        '" data-cat="' + esc(c.slug) + '">' + esc(c.label) +
-        ' <span class="n">' + (counts[c.slug] || 0) + '</span></button>';
+      html += pill(c.slug, esc(c.label), counts[c.slug] || 0);
     });
     bar.innerHTML = html;
     bar.querySelectorAll(".cpill").forEach(function (b) {
@@ -126,7 +160,11 @@
     var wrap = el("list");
     var q = state.search.trim().toLowerCase();
     var items = state.products.filter(function (p) {
-      var okCat = state.filterCat === "all" || p.category === state.filterCat;
+      var okCat;
+      if (state.filterCat === "all") okCat = true;
+      else if (state.filterCat === "featured") okCat = !!p.is_featured;
+      else if (state.filterCat === "offers") okCat = !!p.is_offer;
+      else okCat = p.category === state.filterCat;
       var okSearch = !q || ((p.name || "") + " " + (p.description || "")).toLowerCase().indexOf(q) >= 0;
       return okCat && okSearch;
     });
@@ -169,8 +207,26 @@
   el("search").addEventListener("input", function () { state.search = this.value; renderList(); });
 
   /* ============ FORMULARIO (alta / edición) ============ */
-  function toggleOffer() { el("offerFields").classList.toggle("hidden", !el("poffer").checked); }
+  function toggleOffer() {
+    el("offerFields").classList.toggle("hidden", !el("poffer").checked);
+    updateOfferPreview();
+  }
   el("poffer").addEventListener("change", toggleOffer);
+
+  // Vista previa en vivo del cálculo de la oferta.
+  function updateOfferPreview() {
+    var box = el("offerPreview");
+    if (!box) return;
+    if (!el("poffer").checked) { box.textContent = ""; return; }
+    var base = parsePrice(el("pprice").value);
+    var pct = parseInt(el("pdiscount").value, 10);
+    if (base == null) { box.textContent = "Escribe un precio numérico para calcular la oferta."; return; }
+    if (!pct || pct <= 0) { box.textContent = "Precio normal: " + formatEuro(base) + " · escribe el % de descuento."; return; }
+    var sale = base * (1 - pct / 100);
+    box.innerHTML = "Antes <s>" + formatEuro(base) + "</s> → <strong>" + formatEuro(sale) + "</strong> (−" + pct + "%)";
+  }
+  el("pprice").addEventListener("input", updateOfferPreview);
+  el("pdiscount").addEventListener("input", updateOfferPreview);
 
   function openForm(id) {
     el("formMsg").textContent = "";
@@ -182,13 +238,14 @@
     el("pcategory").value = p ? p.category : (state.categories[0] && state.categories[0].slug) || "";
     el("pimage").value = p ? (p.image || "cama.svg") : "cama.svg";
     el("pdesc").value = p ? (p.description || "") : "";
-    el("pprice").value = p ? (p.price || "") : "";
+    // El campo "precio normal" muestra siempre el precio SIN descuento.
+    // En una oferta guardada, ese precio base es el "precio anterior".
+    el("pprice").value = p ? ((p.is_offer && p.old_price) ? p.old_price : (p.price || "")) : "";
     el("porder").value = p ? (p.sort_order != null ? p.sort_order : 100) : 100;
     el("pactive").checked = p ? !!p.active : true;
     el("pfeatured").checked = p ? !!p.is_featured : false;
     el("poffer").checked = p ? !!p.is_offer : false;
     el("pdiscount").value = p && p.discount_pct != null ? p.discount_pct : "";
-    el("poldprice").value = p ? (p.old_price || "") : "";
     toggleOffer();
     el("overlay").classList.remove("hidden");
   }
@@ -205,18 +262,34 @@
     if (!name) { msg.textContent = "El nombre es obligatorio."; return; }
 
     var isOffer = el("poffer").checked;
+    var baseNum = parsePrice(el("pprice").value);
+    var pct = el("pdiscount").value ? parseInt(el("pdiscount").value, 10) : null;
+
+    // Precio "normal" siempre bien formateado (o texto tal cual, p. ej. "Presupuesto").
+    var priceStr = normalizePrice(el("pprice").value);
+    var oldStr = null, discount = null;
+
+    if (isOffer) {
+      if (baseNum == null) { msg.textContent = "Para una oferta, el precio debe ser un número (ej. 32,90)."; return; }
+      if (!pct || pct <= 0 || pct >= 100) { msg.textContent = "Indica un descuento entre 1 y 99 %."; return; }
+      // El precio anterior es el que había escrito; el nuevo se calcula solo.
+      oldStr = formatEuro(baseNum);
+      priceStr = formatEuro(baseNum * (1 - pct / 100));
+      discount = pct;
+    }
+
     var payload = {
       name: name,
       category: el("pcategory").value,
       image: el("pimage").value,
       description: el("pdesc").value.trim(),
-      price: el("pprice").value.trim(),
+      price: priceStr,
       sort_order: parseInt(el("porder").value, 10) || 100,
       active: el("pactive").checked,
       is_featured: el("pfeatured").checked,
       is_offer: isOffer,
-      discount_pct: isOffer && el("pdiscount").value ? parseInt(el("pdiscount").value, 10) : null,
-      old_price: isOffer ? el("poldprice").value.trim() || null : null
+      discount_pct: discount,
+      old_price: oldStr
     };
 
     var btn = el("saveBtn"); btn.disabled = true; btn.textContent = "Guardando…";
