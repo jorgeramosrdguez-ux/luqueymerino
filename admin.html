@@ -101,7 +101,17 @@
     .modal__foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
     .offer-fields{background:var(--garnet-soft);border-radius:12px;padding:12px 14px;margin-top:4px}
     .empty{text-align:center;padding:50px 20px;color:var(--ink-soft)}
-    @media(max-width:520px){.row2{grid-template-columns:1fr}.top__brand small{display:none}}
+    @media(max-width:560px){
+      .row2{grid-template-columns:1fr}
+      .top{padding:11px 14px;gap:8px}
+      .top__brand{font-size:1.05rem;line-height:1.1;white-space:nowrap}
+      .top__brand small{display:none}
+      #userEmail{display:none}
+      .top__right{gap:8px;font-size:.82rem}
+      .top .btn--sm{padding:.42rem .7rem;font-size:.8rem;white-space:nowrap}
+      .wrap{padding:18px 14px 50px}
+      .panel-head h1{font-size:1.7rem}
+    }
   </style>
 </head>
 <body>
