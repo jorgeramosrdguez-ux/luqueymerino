@@ -126,7 +126,7 @@ h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; line-height: 1.08;
 .brand { display: inline-flex; align-items: center; }
 .logo__img { max-height: 54px; width: auto; display: block; }
 .logo__img.is-on + .logo { display: none; } /* si el logo real carga, ocultamos el de texto */
-.logo__img--footer { max-height: 46px; margin-bottom: .3rem; }
+.logo__img--footer { max-height: 46px; margin-bottom: .3rem; filter: brightness(0) invert(1); opacity: .92; }
 
 /* Logotipo Luque & Merino (recreación de la firma de marca) */
 .logo { display: inline-flex; flex-direction: column; align-items: center; line-height: 1; }
