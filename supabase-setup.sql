@@ -66,7 +66,9 @@ on conflict (slug) do nothing;
 -- ---------- Productos iniciales (solo si la tabla está vacía) ----------
 insert into public.lym_products
   (category, name, description, price, image, is_offer, discount_pct, old_price, is_featured, sort_order)
-select * from (values
+select v.category, v.name, v.description, v.price, v.image, v.is_offer,
+       v.discount_pct, v.old_price, v.is_featured, v.sort_order
+from (values
   ('textil','Juego de sábanas','Algodón · encimera, bajera y fundas.','32,90 €','cama.svg',false,null,null,true,10),
   ('textil','Funda nórdica','100% algodón, suave y transpirable.','31,90 €','cama.svg',true,25,'42,90 €',false,20),
   ('textil','Juego de toallas','Algodón rizo · 3 piezas.','16,90 €','toallas.svg',true,30,'24,90 €',true,30),
