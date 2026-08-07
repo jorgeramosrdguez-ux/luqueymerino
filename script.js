@@ -194,6 +194,17 @@
     return /^https?:\/\//.test(v) ? v : "img/" + v;
   }
 
+  // Estilo de encuadre (ajuste, tamaño y posición) elegido en el panel.
+  function frameStyle(p) {
+    var isPhoto = /^https?:\/\//.test(p.image || "");
+    var fit = p.img_fit || (isPhoto ? "cover" : "contain");
+    var zoom = (p.img_zoom || 100) / 100;
+    var x = p.img_x == null ? 50 : p.img_x;
+    var y = p.img_y == null ? 50 : p.img_y;
+    return "object-fit:" + fit + ";object-position:" + x + "% " + y + "%;--z:" + zoom + ";" +
+           (isPhoto ? "width:100%;height:100%;" : "");
+  }
+
   function productCard(p) {
     var cats = window.LYM_CATEGORIES || {};
     var catLabel = cats[p.category] || p.category || "";
@@ -220,7 +231,7 @@
     if (p.id != null) art.setAttribute("data-id", p.id);
     art.innerHTML =
       '<div class="product__img">' + badge +
-        '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(p.name) + '" loading="lazy" />' +
+        '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(p.name) + '" loading="lazy" style="' + frameStyle(p) + '" />' +
       '</div>' +
       '<div class="product__body">' +
         '<span class="product__cat">' + escapeHtml(catLabel) + '</span>' +
@@ -270,7 +281,7 @@
       fig.style.cursor = "pointer";
       fig.title = "Ver “" + p.name + "” en el catálogo";
       fig.innerHTML =
-        '<img src="' + escapeHtml(imgSrc(p.image)) + '" alt="' + escapeHtml(p.name) + '" />' +
+        '<img src="' + escapeHtml(imgSrc(p.image)) + '" alt="' + escapeHtml(p.name) + '" style="' + frameStyle(p) + '" />' +
         '<figcaption>' + escapeHtml(p.name) + '</figcaption>';
       carousel.appendChild(fig);
     });
@@ -300,11 +311,21 @@
     var map = {};
     (rows || []).forEach(function (s) { map[s.key] = s.value; });
     document.querySelectorAll("[data-site-img]").forEach(function (box) {
-      var url = map[box.getAttribute("data-site-img")];
-      if (!url) return;
-      box.style.backgroundImage = "url('" + url + "')";
-      box.style.backgroundSize = "cover";
-      box.style.backgroundPosition = "center";
+      var raw = map[box.getAttribute("data-site-img")];
+      if (!raw) return;
+      var cfg;
+      if (raw.charAt(0) === "{") { try { cfg = JSON.parse(raw); } catch (e) { return; } }
+      else { cfg = { url: raw, zoom: 100, x: 50, y: 50 }; }
+      if (!cfg || !cfg.url) return;
+
+      var img = document.createElement("img");
+      img.className = "site-photo";
+      img.src = cfg.url;
+      img.alt = "";
+      img.style.objectFit = cfg.fit || "cover";
+      img.style.objectPosition = (cfg.x == null ? 50 : cfg.x) + "% " + (cfg.y == null ? 50 : cfg.y) + "%";
+      img.style.transform = "scale(" + (cfg.zoom || 100) / 100 + ")";
+      box.appendChild(img);
       box.classList.add("has-photo");
     });
   }

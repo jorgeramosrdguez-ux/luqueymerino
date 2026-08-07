@@ -224,7 +224,7 @@ body.menu-open { overflow: hidden; }
 .slide[data-tint="toallas"] { background: linear-gradient(160deg, #faf1ea, #f0e0d3); }
 .slide[data-tint="bebe"] { background: linear-gradient(160deg, #f8eef1, #eeddE4); }
 .slide[data-tint="mantel"] { background: linear-gradient(160deg, #f7f0ea, #efe1d5); }
-.slide img { width: 66%; height: 62%; object-fit: contain; }
+.slide img { width: 66%; height: 62%; object-fit: contain; transform: scale(var(--z, 1)); }
 .slide figcaption {
   position: absolute; left: 0; right: 0; bottom: 0; padding: 2.4rem 1.4rem 1.2rem;
   color: #fff; font-family: var(--serif); font-size: 1.5rem; font-weight: 600; text-align: center;
@@ -292,9 +292,9 @@ body.menu-open { overflow: hidden; }
   transition: transform .35s var(--ease), box-shadow .35s var(--ease);
 }
 .product:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-.product__img { position: relative; height: 190px; display: grid; place-items: center; background: linear-gradient(160deg, #ffffff, #f4f2f1); border-bottom: 1px solid var(--line); }
-.product__img img { width: 72%; height: 80%; object-fit: contain; transition: transform .35s var(--ease); }
-.product:hover .product__img img { transform: scale(1.06); }
+.product__img { position: relative; height: 190px; overflow: hidden; display: grid; place-items: center; background: linear-gradient(160deg, #ffffff, #f4f2f1); border-bottom: 1px solid var(--line); }
+.product__img img { width: 72%; height: 80%; object-fit: contain; transform: scale(var(--z, 1)); transition: transform .35s var(--ease); }
+.product:hover .product__img img { transform: scale(calc(var(--z, 1) * 1.06)); }
 .product__body { padding: 1.2rem 1.3rem 1.3rem; display: flex; flex-direction: column; flex: 1; }
 .product__cat { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--clay-dark); }
 .product__body h3 { font-size: 1.4rem; margin: .35rem 0 .3rem; }
@@ -443,6 +443,7 @@ body.menu-open { overflow: hidden; }
 /* Cuando el cliente sube su propia foto, se quitan los adornos de relleno */
 .has-photo::after, .has-photo::before { content: none !important; }
 .has-photo .stitch-name { display: none; }
+.site-photo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .about__text p { color: var(--ink-soft); font-size: 1.05rem; margin: 1rem 0; }
 .stats { display: flex; gap: 2rem; margin-top: 1.8rem; flex-wrap: wrap; }
 .stat { display: flex; flex-direction: column; }

@@ -271,17 +271,56 @@
   el("pprice").addEventListener("input", updateOfferPreview);
   el("pdiscount").addEventListener("input", updateOfferPreview);
 
-  // Imagen elegida para el producto (nombre de ilustración o URL subida).
+  // Imagen elegida para el producto (nombre de ilustración o URL subida)
+  // junto con su encuadre: ajuste, tamaño y posición.
   var currentImage = "cama.svg";
+  var frame = { fit: "cover", zoom: 100, x: 50, y: 50 };
+
+  // Aplica el encuadre a una imagen (vale para el panel y para la web).
+  function applyFrame(img, f) {
+    img.style.objectFit = f.fit || "cover";
+    img.style.objectPosition = (f.x == null ? 50 : f.x) + "% " + (f.y == null ? 50 : f.y) + "%";
+    img.style.setProperty("--z", (f.zoom || 100) / 100);
+    img.style.transform = "scale(" + (f.zoom || 100) / 100 + ")";
+  }
+
+  function refreshFramer() {
+    applyFrame(el("pimgPrev"), frame);
+    el("pzoom").value = frame.zoom;
+    el("px").value = frame.x;
+    el("py").value = frame.y;
+    el("pfit").textContent = frame.fit === "contain" ? "🔲 Rellenar el hueco" : "🖼️ Ver foto completa";
+  }
+
   function setImage(v) {
     currentImage = v || "cama.svg";
     el("pimgPrev").src = imgSrc(currentImage);
     var isUpload = /^https?:\/\//.test(currentImage);
     el("pimage").value = isUpload ? "" : currentImage;
     el("pimgHint").textContent = isUpload
-      ? "Foto propia subida ✓"
+      ? "Foto propia subida ✓ — ajústala con los controles de abajo."
       : "Puedes subir tu propia foto o elegir una ilustración.";
+    // Las ilustraciones se ven mejor enteras; las fotos, rellenando.
+    if (!isUpload) frame.fit = "contain";
+    refreshFramer();
   }
+
+  ["pzoom", "px", "py"].forEach(function (id) {
+    el(id).addEventListener("input", function () {
+      frame.zoom = parseInt(el("pzoom").value, 10);
+      frame.x = parseInt(el("px").value, 10);
+      frame.y = parseInt(el("py").value, 10);
+      applyFrame(el("pimgPrev"), frame);
+    });
+  });
+  el("pcenter").addEventListener("click", function () {
+    frame.zoom = 100; frame.x = 50; frame.y = 50;
+    refreshFramer();
+  });
+  el("pfit").addEventListener("click", function () {
+    frame.fit = frame.fit === "contain" ? "cover" : "contain";
+    refreshFramer();
+  });
   el("pimage").addEventListener("change", function () {
     if (this.value) setImage(this.value);
   });
@@ -309,6 +348,13 @@
     el("pname").value = p ? p.name : "";
     fillCategorySelect();
     el("pcategory").value = p ? p.category : (state.categories[0] && state.categories[0].slug) || "";
+    // Encuadre guardado (o valores por defecto para uno nuevo)
+    frame = {
+      fit: (p && p.img_fit) || "cover",
+      zoom: (p && p.img_zoom) || 100,
+      x: p && p.img_x != null ? p.img_x : 50,
+      y: p && p.img_y != null ? p.img_y : 50
+    };
     setImage(p ? (p.image || "cama.svg") : "cama.svg");
     el("pdesc").value = p ? (p.description || "") : "";
     // El campo "precio normal" muestra siempre el precio SIN descuento.
@@ -355,6 +401,10 @@
       name: name,
       category: el("pcategory").value,
       image: currentImage,
+      img_fit: frame.fit,
+      img_zoom: frame.zoom,
+      img_x: frame.x,
+      img_y: frame.y,
       description: el("pdesc").value.trim(),
       price: priceStr,
       sort_order: parseInt(el("porder").value, 10) || 100,
@@ -481,23 +531,98 @@
   });
 
   /* ============ IMÁGENES DE LA WEB ============ */
+  // El ajuste se guarda como JSON; se admite el formato antiguo (solo la URL).
+  function parseSetting(v) {
+    if (!v) return null;
+    if (v.charAt(0) === "{") { try { return JSON.parse(v); } catch (e) { return null; } }
+    return { url: v, fit: "cover", zoom: 100, x: 50, y: 50 };
+  }
+  function saveSetting(key, obj) {
+    return sb.from("lym_settings").upsert({
+      key: key, value: JSON.stringify(obj), updated_at: new Date().toISOString()
+    });
+  }
+
   function renderSiteImages() {
     var wrap = el("siteimgs");
     if (!wrap) return;
     wrap.innerHTML = SITE_IMAGES.map(function (s) {
-      var val = state.settings[s.key];
-      var prev = val
-        ? ' style="background-image:url(' + esc(val) + ')"'
-        : '';
+      var cfg = parseSetting(state.settings[s.key]);
+      var body;
+      if (cfg) {
+        body =
+          '<div class="framer__stage" style="height:150px"><img data-siteprev="' + esc(s.key) + '" src="' + esc(cfg.url) + '" alt="" /></div>' +
+          '<div class="framer__row"><span>🔍 Tamaño</span><input type="range" min="100" max="250" value="' + (cfg.zoom || 100) + '" data-sz="' + esc(s.key) + '" /></div>' +
+          '<div class="framer__row"><span>↔️ Horizontal</span><input type="range" min="0" max="100" value="' + (cfg.x == null ? 50 : cfg.x) + '" data-sx="' + esc(s.key) + '" /></div>' +
+          '<div class="framer__row"><span>↕️ Vertical</span><input type="range" min="0" max="100" value="' + (cfg.y == null ? 50 : cfg.y) + '" data-sy="' + esc(s.key) + '" /></div>' +
+          '<div class="framer__btns">' +
+            '<button class="btn btn--ghost btn--sm" data-scenter="' + esc(s.key) + '">🎯 Centrar</button>' +
+            '<button class="btn btn--primary btn--sm" data-ssave="' + esc(s.key) + '">Guardar encuadre</button>' +
+          '</div>';
+      } else {
+        body = '<div class="simg__prev">Sin foto propia (se ve el diseño por defecto)</div>';
+      }
       return '<div class="simg">' +
         '<h3>' + esc(s.title) + '</h3>' +
         '<p>' + esc(s.desc) + '</p>' +
-        '<div class="simg__prev"' + prev + '>' + (val ? "" : "Sin foto propia (se ve el diseño por defecto)") + '</div>' +
-        '<label class="filebtn">📷 Cambiar foto<input type="file" accept="image/*" data-site="' + esc(s.key) + '" /></label>' +
-        (val ? '<button class="btn btn--danger btn--sm" style="margin-top:8px;width:100%;justify-content:center" data-siteclear="' + esc(s.key) + '">Quitar foto</button>' : '') +
+        body +
+        '<label class="filebtn" style="margin-top:10px">📷 ' + (cfg ? "Cambiar" : "Subir") + ' foto<input type="file" accept="image/*" data-site="' + esc(s.key) + '" /></label>' +
+        (cfg ? '<button class="btn btn--danger btn--sm" style="margin-top:8px;width:100%;justify-content:center" data-siteclear="' + esc(s.key) + '">Quitar foto</button>' : '') +
         '<p class="hint" data-sitemsg="' + esc(s.key) + '"></p>' +
       '</div>';
     }).join("");
+
+    // Aplica el encuadre guardado a cada vista previa
+    SITE_IMAGES.forEach(function (s) {
+      var cfg = parseSetting(state.settings[s.key]);
+      var img = wrap.querySelector('[data-siteprev="' + s.key + '"]');
+      if (cfg && img) applyFrame(img, cfg);
+    });
+
+    function liveUpdate(key) {
+      var img = wrap.querySelector('[data-siteprev="' + key + '"]');
+      if (!img) return;
+      applyFrame(img, {
+        fit: "cover",
+        zoom: parseInt(wrap.querySelector('[data-sz="' + key + '"]').value, 10),
+        x: parseInt(wrap.querySelector('[data-sx="' + key + '"]').value, 10),
+        y: parseInt(wrap.querySelector('[data-sy="' + key + '"]').value, 10)
+      });
+    }
+    ["sz", "sx", "sy"].forEach(function (attr) {
+      wrap.querySelectorAll("[data-" + attr + "]").forEach(function (r) {
+        r.addEventListener("input", function () { liveUpdate(r.getAttribute("data-" + attr)); });
+      });
+    });
+
+    wrap.querySelectorAll("[data-scenter]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var key = b.getAttribute("data-scenter");
+        wrap.querySelector('[data-sz="' + key + '"]').value = 100;
+        wrap.querySelector('[data-sx="' + key + '"]').value = 50;
+        wrap.querySelector('[data-sy="' + key + '"]').value = 50;
+        liveUpdate(key);
+      });
+    });
+
+    wrap.querySelectorAll("[data-ssave]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var key = b.getAttribute("data-ssave");
+        var cfg = parseSetting(state.settings[key]) || {};
+        var msg = wrap.querySelector('[data-sitemsg="' + key + '"]');
+        msg.textContent = "Guardando…";
+        saveSetting(key, {
+          url: cfg.url, fit: "cover",
+          zoom: parseInt(wrap.querySelector('[data-sz="' + key + '"]').value, 10),
+          x: parseInt(wrap.querySelector('[data-sx="' + key + '"]').value, 10),
+          y: parseInt(wrap.querySelector('[data-sy="' + key + '"]').value, 10)
+        }).then(function (res) {
+          if (res.error) { msg.textContent = "No se pudo guardar: " + res.error.message; return; }
+          msg.textContent = "Encuadre guardado ✓";
+          loadAll();
+        });
+      });
+    });
 
     wrap.querySelectorAll("[data-site]").forEach(function (inp) {
       inp.addEventListener("change", function () {
@@ -507,7 +632,7 @@
         var msg = wrap.querySelector('[data-sitemsg="' + key + '"]');
         msg.textContent = "Subiendo foto…";
         uploadImage(file).then(function (url) {
-          return sb.from("lym_settings").upsert({ key: key, value: url, updated_at: new Date().toISOString() });
+          return saveSetting(key, { url: url, fit: "cover", zoom: 100, x: 50, y: 50 });
         }).then(function (res) {
           if (res && res.error) throw res.error;
           loadAll();

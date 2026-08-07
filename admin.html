@@ -81,6 +81,16 @@
     .filebtn input{display:none}
     .hint{font-size:.76rem;color:var(--ink-soft);margin:.4rem 0 0}
 
+    /* ---- Encuadre de la foto ---- */
+    .framer{margin-top:12px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px}
+    .framer__stage{width:100%;height:170px;border-radius:10px;overflow:hidden;background:#fff;border:1px solid var(--line);display:block}
+    .framer__stage img{width:100%;height:100%;display:block;object-fit:cover;object-position:50% 50%;transform:scale(1);transition:none}
+    .framer__row{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:.78rem;font-weight:600;color:var(--ink-soft)}
+    .framer__row span{flex:0 0 84px;white-space:nowrap}
+    .framer__row input[type=range]{flex:1;accent-color:var(--garnet);height:26px}
+    .framer__btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+    .framer__btns .btn{flex:1;justify-content:center}
+
     /* ---- Imágenes de la web ---- */
     .siteimgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
     .simg{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px}
@@ -247,15 +257,33 @@
 
       <div class="field">
         <label>Imagen</label>
-        <div class="imgpick">
-          <div class="imgpick__prev"><img id="pimgPrev" src="img/cama.svg" alt="" /></div>
-          <div class="imgpick__ctrl">
-            <label class="filebtn">
-              📷 Subir foto del dispositivo
-              <input type="file" id="pfile" accept="image/*" />
-            </label>
-            <select id="pimage" style="margin-top:8px"></select>
-            <p class="hint" id="pimgHint">Puedes subir tu propia foto o elegir una ilustración.</p>
+        <label class="filebtn">
+          📷 Subir foto del dispositivo
+          <input type="file" id="pfile" accept="image/*" />
+        </label>
+        <select id="pimage" style="margin-top:8px"></select>
+        <p class="hint" id="pimgHint">Puedes subir tu propia foto o elegir una ilustración.</p>
+
+        <!-- Encuadre de la foto -->
+        <div class="framer" id="pframer">
+          <div class="framer__stage"><img id="pimgPrev" src="img/cama.svg" alt="" /></div>
+          <div class="framer__ctrl">
+            <div class="framer__row">
+              <span>🔍 Tamaño</span>
+              <input type="range" id="pzoom" min="100" max="250" value="100" />
+            </div>
+            <div class="framer__row">
+              <span>↔️ Horizontal</span>
+              <input type="range" id="px" min="0" max="100" value="50" />
+            </div>
+            <div class="framer__row">
+              <span>↕️ Vertical</span>
+              <input type="range" id="py" min="0" max="100" value="50" />
+            </div>
+            <div class="framer__btns">
+              <button type="button" class="btn btn--ghost btn--sm" id="pcenter">🎯 Centrar</button>
+              <button type="button" class="btn btn--ghost btn--sm" id="pfit">🖼️ Ver foto completa</button>
+            </div>
           </div>
         </div>
       </div>
