@@ -65,6 +65,35 @@
     .toolbar input[type=search]{flex:1;min-width:180px;padding:.7rem .9rem;border:1px solid var(--line);border-radius:10px;font-size:.95rem}
     .count{color:var(--ink-soft);font-size:.85rem;margin-left:auto}
 
+    /* ---- Pestañas ---- */
+    .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:4px 0 20px;overflow-x:auto}
+    .tab{font-family:var(--sans);font-weight:700;font-size:.95rem;background:none;border:0;border-bottom:3px solid transparent;color:var(--ink-soft);padding:.7rem 1rem;cursor:pointer;white-space:nowrap}
+    .tab:hover{color:var(--ink)}
+    .tab.is-active{color:var(--garnet);border-bottom-color:var(--garnet)}
+
+    /* ---- Subida de imágenes ---- */
+    .imgpick{display:flex;gap:12px;align-items:flex-start}
+    .imgpick__prev{width:84px;height:84px;flex:0 0 84px;border-radius:10px;border:1px solid var(--line);background:var(--garnet-soft);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .imgpick__prev img{width:100%;height:100%;object-fit:contain;padding:5px}
+    .imgpick__ctrl{flex:1;min-width:0}
+    .filebtn{display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;font-weight:600;font-size:.88rem;border:1px dashed var(--garnet);color:var(--garnet-dark);border-radius:10px;padding:.55rem .9rem;background:#fff;width:100%;justify-content:center}
+    .filebtn:hover{background:var(--garnet-soft)}
+    .filebtn input{display:none}
+    .hint{font-size:.76rem;color:var(--ink-soft);margin:.4rem 0 0}
+
+    /* ---- Imágenes de la web ---- */
+    .siteimgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+    .simg{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+    .simg h3{font-size:1.2rem;margin-bottom:.2rem}
+    .simg p{font-size:.82rem;color:var(--ink-soft);margin:0 0 10px}
+    .simg__prev{width:100%;height:150px;border-radius:10px;border:1px solid var(--line);background:var(--garnet-soft) center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:.85rem;margin-bottom:10px}
+
+    /* ---- Categorías (gestión) ---- */
+    .catlist{display:grid;gap:10px;max-width:640px}
+    .crow{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .crow__name{font-family:var(--serif);font-size:1.2rem;flex:1;min-width:120px}
+    .crow__n{font-size:.78rem;color:var(--ink-soft)}
+
     /* ---- Barra de categorías (filtro) ---- */
     .catbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
     .cpill{font-family:var(--sans);font-weight:600;font-size:.85rem;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:.45rem .9rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.4rem}
@@ -148,24 +177,55 @@
     </div>
 
     <div class="wrap">
-      <div class="panel-head">
-        <div>
-          <h1>Productos</h1>
-          <p>Añade, edita o quita productos y ofertas. Los cambios se ven en la web al instante.</p>
+      <nav class="tabs">
+        <button class="tab is-active" data-tab="products">Productos</button>
+        <button class="tab" data-tab="categories">Categorías</button>
+        <button class="tab" data-tab="site">Imágenes de la web</button>
+      </nav>
+
+      <!-- ===== PESTAÑA: PRODUCTOS ===== -->
+      <section id="tab-products">
+        <div class="panel-head">
+          <div>
+            <h1>Productos</h1>
+            <p>Añade, edita o quita productos y ofertas. Los cambios se ven en la web al instante.</p>
+          </div>
+          <button class="btn btn--primary" id="addBtn">+ Nuevo producto</button>
         </div>
-        <button class="btn btn--primary" id="addBtn">+ Nuevo producto</button>
-      </div>
 
-      <div class="catbar" id="catbar"></div>
+        <div class="catbar" id="catbar"></div>
 
-      <div class="toolbar">
-        <input type="search" id="search" placeholder="Buscar producto…" />
-        <button class="btn btn--ghost btn--sm" id="addCatBtn" type="button">+ Categoría</button>
-        <span class="count" id="count"></span>
-      </div>
+        <div class="toolbar">
+          <input type="search" id="search" placeholder="Buscar producto…" />
+          <span class="count" id="count"></span>
+        </div>
 
-      <div id="list" class="grid"></div>
-      <div id="empty" class="empty hidden">Todavía no hay productos. Pulsa <strong>“+ Nuevo producto”</strong> para empezar.</div>
+        <div id="list" class="grid"></div>
+        <div id="empty" class="empty hidden">Todavía no hay productos. Pulsa <strong>“+ Nuevo producto”</strong> para empezar.</div>
+      </section>
+
+      <!-- ===== PESTAÑA: CATEGORÍAS ===== -->
+      <section id="tab-categories" class="hidden">
+        <div class="panel-head">
+          <div>
+            <h1>Categorías</h1>
+            <p>Crea, renombra, ordena o elimina las categorías del catálogo.</p>
+          </div>
+          <button class="btn btn--primary" id="addCatBtn" type="button">+ Nueva categoría</button>
+        </div>
+        <div class="catlist" id="catlist"></div>
+      </section>
+
+      <!-- ===== PESTAÑA: IMÁGENES DE LA WEB ===== -->
+      <section id="tab-site" class="hidden">
+        <div class="panel-head">
+          <div>
+            <h1>Imágenes de la web</h1>
+            <p>Cambia las fotos grandes de la página principal. Sube una foto y se actualiza al instante.</p>
+          </div>
+        </div>
+        <div class="siteimgs" id="siteimgs"></div>
+      </section>
     </div>
   </div>
 
@@ -180,14 +240,23 @@
         <input type="text" id="pname" required placeholder="Ej. Juego de sábanas" />
       </div>
 
-      <div class="row2">
-        <div class="field">
-          <label for="pcategory">Categoría *</label>
-          <select id="pcategory" required></select>
-        </div>
-        <div class="field">
-          <label for="pimage">Imagen</label>
-          <select id="pimage"></select>
+      <div class="field">
+        <label for="pcategory">Categoría *</label>
+        <select id="pcategory" required></select>
+      </div>
+
+      <div class="field">
+        <label>Imagen</label>
+        <div class="imgpick">
+          <div class="imgpick__prev"><img id="pimgPrev" src="img/cama.svg" alt="" /></div>
+          <div class="imgpick__ctrl">
+            <label class="filebtn">
+              📷 Subir foto del dispositivo
+              <input type="file" id="pfile" accept="image/*" />
+            </label>
+            <select id="pimage" style="margin-top:8px"></select>
+            <p class="hint" id="pimgHint">Puedes subir tu propia foto o elegir una ilustración.</p>
+          </div>
         </div>
       </div>
 

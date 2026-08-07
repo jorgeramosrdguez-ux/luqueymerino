@@ -41,10 +41,15 @@ Carga Google Fonts y la librería de Supabase por CDN. No necesita servidor ni c
 Página **oculta** (no enlazada, con `noindex`) y **protegida por usuario y contraseña**.
 Solo quien escribe `/admin` en el navegador ve el acceso. Desde ahí se puede:
 
-- **Añadir, editar y eliminar** productos, con su **categoría**.
-- Marcar productos como **⭐ Destacados** (aparecen en el carrusel del inicio) o **🏷️ en oferta**.
-- **Filtrar por categoría** y buscar.
-- **Crear categorías nuevas**.
+Organizado en tres pestañas:
+
+- **Productos**: añadir, editar y eliminar, con su **categoría**, **⭐ destacados**
+  (salen en el carrusel del inicio) y **🏷️ ofertas** (solo se indica el % y el
+  precio rebajado se calcula solo). Filtros por categoría, destacados y ofertas.
+  Se pueden **subir fotos propias** desde el móvil o el ordenador.
+- **Categorías**: crear, **renombrar**, **reordenar** y **eliminar**.
+- **Imágenes de la web**: cambiar las fotos grandes de la página principal
+  (cortinas a medida, bordados y la tienda).
 
 Los cambios se reflejan en la web al instante. Si la base de datos no responde, la web
 muestra un catálogo de demostración de respaldo.
@@ -53,7 +58,8 @@ muestra un catálogo de demostración de respaldo.
 
 1. Crear un proyecto en [supabase.com](https://supabase.com) (plan gratuito).
 2. Copiar la **Project URL** y la **publishable key** (Project Settings → API) a `supabase-config.js`.
-3. Pegar el contenido de `supabase-setup.sql` en **SQL Editor → New query → Run**.
+3. Pegar el contenido de `supabase-setup.sql` en **SQL Editor → New query → Run**,
+   y después el de `supabase-setup-2.sql` (fotos propias e imágenes de la web).
 4. Crear los usuarios administradores en **Authentication → Users → Add user**
    (marcando *Auto Confirm User*).
 

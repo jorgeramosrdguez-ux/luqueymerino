@@ -187,13 +187,20 @@
       .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   }
 
+  // Las fotos subidas se guardan como URL completa; las ilustraciones,
+  // como nombre de archivo dentro de img/.
+  function imgSrc(v) {
+    if (!v) return "img/cama.svg";
+    return /^https?:\/\//.test(v) ? v : "img/" + v;
+  }
+
   function productCard(p) {
     var cats = window.LYM_CATEGORIES || {};
     var catLabel = cats[p.category] || p.category || "";
     var isOffer = !!p.is_offer;
     var price = (p.price || "").trim();
     var ref = /presupuesto/i.test(price) ? "a medida" : "precio orientativo";
-    var img = "img/" + (p.image || "cama.svg");
+    var img = imgSrc(p.image);
 
     var badge = "";
     if (isOffer && p.discount_pct) {
@@ -263,7 +270,7 @@
       fig.style.cursor = "pointer";
       fig.title = "Ver “" + p.name + "” en el catálogo";
       fig.innerHTML =
-        '<img src="img/' + escapeHtml(p.image || "cama.svg") + '" alt="' + escapeHtml(p.name) + '" />' +
+        '<img src="' + escapeHtml(imgSrc(p.image)) + '" alt="' + escapeHtml(p.name) + '" />' +
         '<figcaption>' + escapeHtml(p.name) + '</figcaption>';
       carousel.appendChild(fig);
     });
@@ -288,11 +295,30 @@
     setTimeout(function () { card.classList.remove("is-highlight"); }, 2200);
   }
 
+  // Aplica las fotos que el cliente haya subido para las secciones grandes.
+  function applySiteImages(rows) {
+    var map = {};
+    (rows || []).forEach(function (s) { map[s.key] = s.value; });
+    document.querySelectorAll("[data-site-img]").forEach(function (box) {
+      var url = map[box.getAttribute("data-site-img")];
+      if (!url) return;
+      box.style.backgroundImage = "url('" + url + "')";
+      box.style.backgroundSize = "cover";
+      box.style.backgroundPosition = "center";
+      box.classList.add("has-photo");
+    });
+  }
+
   function loadCatalog() {
     var cfg = window.LYM_SUPABASE;
     if (!catalogEl || !cfg || !window.supabase) return;
     try {
       var sb = window.supabase.createClient(cfg.url, cfg.key);
+
+      // Imágenes personalizadas de la web (independiente del catálogo)
+      sb.from("lym_settings").select("*").then(function (res) {
+        if (!res.error) applySiteImages(res.data);
+      }).catch(function () { /* si falla, se queda el diseño por defecto */ });
       // Categorías (para orden y nombres) y productos activos, en paralelo.
       var pCats = sb.from("lym_categories").select("*").order("sort_order", { ascending: true });
       var pProd = sb.from(cfg.table).select("*").eq("active", true).order("sort_order", { ascending: true });

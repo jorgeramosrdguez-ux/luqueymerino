@@ -439,6 +439,10 @@ body.menu-open { overflow: hidden; }
   background: linear-gradient(160deg, #a83a4c, #5f1723); position: relative; overflow: hidden;
 }
 .about__photo::after { content: "Foto de la tienda"; position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255,255,255,.7); font-family: var(--serif); font-style: italic; font-size: 1.3rem; }
+
+/* Cuando el cliente sube su propia foto, se quitan los adornos de relleno */
+.has-photo::after, .has-photo::before { content: none !important; }
+.has-photo .stitch-name { display: none; }
 .about__text p { color: var(--ink-soft); font-size: 1.05rem; margin: 1rem 0; }
 .stats { display: flex; gap: 2rem; margin-top: 1.8rem; flex-wrap: wrap; }
 .stat { display: flex; flex-direction: column; }

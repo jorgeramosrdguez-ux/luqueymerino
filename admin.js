@@ -19,8 +19,34 @@
   }
   var sb = window.supabase.createClient(cfg.url, cfg.key);
 
+  var BUCKET = "lym-images";
   var el = function (id) { return document.getElementById(id); };
-  var state = { products: [], categories: [], filterCat: "all", search: "" };
+  var state = { products: [], categories: [], settings: {}, filterCat: "all", search: "" };
+
+  // Las fotos subidas se guardan como URL completa; las ilustraciones, como
+  // nombre de archivo dentro de img/.
+  function imgSrc(v) {
+    if (!v) return "img/cama.svg";
+    return /^https?:\/\//.test(v) ? v : "img/" + v;
+  }
+
+  // Sube un archivo al almacén y devuelve su URL pública.
+  function uploadImage(file) {
+    var ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    var path = Date.now() + "-" + Math.random().toString(36).slice(2, 8) + "." + ext;
+    return sb.storage.from(BUCKET).upload(path, file, { cacheControl: "3600", upsert: false })
+      .then(function (res) {
+        if (res.error) throw res.error;
+        return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+      });
+  }
+
+  // Imágenes grandes de la página principal que el cliente puede cambiar.
+  var SITE_IMAGES = [
+    { key: "img_curtains",   title: "Cortinas y estores a medida", desc: "Foto grande de la sección del servicio estrella." },
+    { key: "img_embroidery", title: "Bordado personalizado",       desc: "Foto de la sección de bordados." },
+    { key: "img_store",      title: "La tienda",                   desc: "Foto del escaparate o interior en “Sobre nosotros”." }
+  ];
 
   function esc(s) {
     return String(s == null ? "" : s)
@@ -101,18 +127,34 @@
     sb.auth.signOut().then(function () { location.reload(); });
   });
 
+  /* ============ PESTAÑAS ============ */
+  document.querySelectorAll(".tab").forEach(function (t) {
+    t.addEventListener("click", function () {
+      var name = t.getAttribute("data-tab");
+      document.querySelectorAll(".tab").forEach(function (x) { x.classList.toggle("is-active", x === t); });
+      ["products", "categories", "site"].forEach(function (n) {
+        el("tab-" + n).classList.toggle("hidden", n !== name);
+      });
+    });
+  });
+
   /* ============ CARGA DE DATOS ============ */
   function loadAll() {
     Promise.all([
       sb.from(CATS).select("*").order("sort_order", { ascending: true }),
-      sb.from(TABLE).select("*").order("sort_order", { ascending: true })
+      sb.from(TABLE).select("*").order("sort_order", { ascending: true }),
+      sb.from("lym_settings").select("*")
     ]).then(function (r) {
       state.categories = (r[0] && r[0].data) || [];
       if (r[1] && r[1].error) { alert("Error cargando productos: " + r[1].error.message); return; }
       state.products = (r[1] && r[1].data) || [];
+      state.settings = {};
+      ((r[2] && r[2].data) || []).forEach(function (s) { state.settings[s.key] = s.value; });
       fillCategorySelect();
       renderCatbar();
       renderList();
+      renderCatList();
+      renderSiteImages();
     });
   }
 
@@ -123,9 +165,10 @@
     }).join("");
 
     var img = el("pimage");
-    img.innerHTML = (window.LYM_IMAGES || []).map(function (f) {
-      return '<option value="' + esc(f) + '">' + esc(f) + '</option>';
-    }).join("");
+    img.innerHTML = '<option value="">— o elige una ilustración —</option>' +
+      (window.LYM_IMAGES || []).map(function (f) {
+        return '<option value="' + esc(f) + '">' + esc(f).replace(".svg", "") + '</option>';
+      }).join("");
   }
 
   /* ============ BARRA DE CATEGORÍAS ============ */
@@ -181,7 +224,7 @@
         : esc(p.price);
       return '' +
         '<article class="card' + (p.active ? "" : " is-off") + '">' +
-          '<div class="card__img"><img src="img/' + esc(p.image || "cama.svg") + '" alt="" /></div>' +
+          '<div class="card__img"><img src="' + esc(imgSrc(p.image)) + '" alt="" /></div>' +
           '<div class="card__body">' +
             '<span class="card__cat">' + esc(catLabel(p.category)) + '</span>' +
             '<h3 class="card__name">' + esc(p.name) + '</h3>' +
@@ -228,6 +271,36 @@
   el("pprice").addEventListener("input", updateOfferPreview);
   el("pdiscount").addEventListener("input", updateOfferPreview);
 
+  // Imagen elegida para el producto (nombre de ilustración o URL subida).
+  var currentImage = "cama.svg";
+  function setImage(v) {
+    currentImage = v || "cama.svg";
+    el("pimgPrev").src = imgSrc(currentImage);
+    var isUpload = /^https?:\/\//.test(currentImage);
+    el("pimage").value = isUpload ? "" : currentImage;
+    el("pimgHint").textContent = isUpload
+      ? "Foto propia subida ✓"
+      : "Puedes subir tu propia foto o elegir una ilustración.";
+  }
+  el("pimage").addEventListener("change", function () {
+    if (this.value) setImage(this.value);
+  });
+  el("pfile").addEventListener("change", function () {
+    var file = this.files && this.files[0];
+    if (!file) return;
+    if (file.size > 6 * 1024 * 1024) {
+      el("pimgHint").textContent = "La foto es muy grande (máx. 6 MB).";
+      return;
+    }
+    el("pimgHint").textContent = "Subiendo foto…";
+    uploadImage(file).then(function (url) {
+      setImage(url);
+    }).catch(function (e) {
+      el("pimgHint").textContent = "No se pudo subir: " + (e.message || e);
+    });
+    this.value = "";
+  });
+
   function openForm(id) {
     el("formMsg").textContent = "";
     var p = id ? state.products.find(function (x) { return String(x.id) === String(id); }) : null;
@@ -236,7 +309,7 @@
     el("pname").value = p ? p.name : "";
     fillCategorySelect();
     el("pcategory").value = p ? p.category : (state.categories[0] && state.categories[0].slug) || "";
-    el("pimage").value = p ? (p.image || "cama.svg") : "cama.svg";
+    setImage(p ? (p.image || "cama.svg") : "cama.svg");
     el("pdesc").value = p ? (p.description || "") : "";
     // El campo "precio normal" muestra siempre el precio SIN descuento.
     // En una oferta guardada, ese precio base es el "precio anterior".
@@ -281,7 +354,7 @@
     var payload = {
       name: name,
       category: el("pcategory").value,
-      image: el("pimage").value,
+      image: currentImage,
       description: el("pdesc").value.trim(),
       price: priceStr,
       sort_order: parseInt(el("porder").value, 10) || 100,
@@ -314,7 +387,83 @@
     });
   }
 
-  /* ============ AÑADIR CATEGORÍA ============ */
+  /* ============ GESTIÓN DE CATEGORÍAS ============ */
+  function renderCatList() {
+    var wrap = el("catlist");
+    if (!wrap) return;
+    var counts = {}; state.products.forEach(function (p) { counts[p.category] = (counts[p.category] || 0) + 1; });
+    if (!state.categories.length) {
+      wrap.innerHTML = '<p class="empty">Aún no hay categorías. Pulsa “+ Nueva categoría”.</p>';
+      return;
+    }
+    wrap.innerHTML = state.categories.map(function (c, i) {
+      var n = counts[c.slug] || 0;
+      return '<div class="crow">' +
+        '<span class="crow__name">' + esc(c.label) + '</span>' +
+        '<span class="crow__n">' + n + ' producto' + (n === 1 ? "" : "s") + '</span>' +
+        '<button class="btn btn--ghost btn--sm" data-up="' + esc(c.slug) + '"' + (i === 0 ? " disabled" : "") + '>↑</button>' +
+        '<button class="btn btn--ghost btn--sm" data-down="' + esc(c.slug) + '"' + (i === state.categories.length - 1 ? " disabled" : "") + '>↓</button>' +
+        '<button class="btn btn--ghost btn--sm" data-cedit="' + esc(c.slug) + '">✎ Renombrar</button>' +
+        '<button class="btn btn--danger btn--sm" data-cdel="' + esc(c.slug) + '">🗑 Eliminar</button>' +
+      '</div>';
+    }).join("");
+
+    wrap.querySelectorAll("[data-cedit]").forEach(function (b) {
+      b.addEventListener("click", function () { renameCategory(b.getAttribute("data-cedit")); });
+    });
+    wrap.querySelectorAll("[data-cdel]").forEach(function (b) {
+      b.addEventListener("click", function () { deleteCategory(b.getAttribute("data-cdel")); });
+    });
+    wrap.querySelectorAll("[data-up]").forEach(function (b) {
+      b.addEventListener("click", function () { moveCategory(b.getAttribute("data-up"), -1); });
+    });
+    wrap.querySelectorAll("[data-down]").forEach(function (b) {
+      b.addEventListener("click", function () { moveCategory(b.getAttribute("data-down"), 1); });
+    });
+  }
+
+  function renameCategory(slug) {
+    var c = state.categories.find(function (x) { return x.slug === slug; });
+    if (!c) return;
+    var label = prompt("Nuevo nombre para la categoría:", c.label);
+    if (!label) return;
+    label = label.trim(); if (!label || label === c.label) return;
+    // Solo cambia el nombre visible: el identificador se mantiene,
+    // así los productos siguen enlazados sin tocar nada.
+    sb.from(CATS).update({ label: label }).eq("slug", slug).then(function (res) {
+      if (res.error) { alert("No se pudo renombrar: " + res.error.message); return; }
+      loadAll();
+    });
+  }
+
+  function deleteCategory(slug) {
+    var c = state.categories.find(function (x) { return x.slug === slug; });
+    if (!c) return;
+    var n = state.products.filter(function (p) { return p.category === slug; }).length;
+    if (n > 0) {
+      alert('No se puede eliminar "' + c.label + '" porque tiene ' + n + ' producto' + (n === 1 ? "" : "s") +
+            '.\n\nMueve esos productos a otra categoría (editándolos) y vuelve a intentarlo.');
+      return;
+    }
+    if (!confirm('¿Eliminar la categoría "' + c.label + '"?')) return;
+    sb.from(CATS).delete().eq("slug", slug).then(function (res) {
+      if (res.error) { alert("No se pudo eliminar: " + res.error.message); return; }
+      loadAll();
+    });
+  }
+
+  function moveCategory(slug, dir) {
+    var i = state.categories.findIndex(function (x) { return x.slug === slug; });
+    var j = i + dir;
+    if (i < 0 || j < 0 || j >= state.categories.length) return;
+    var a = state.categories[i], b = state.categories[j];
+    // Intercambia el orden de las dos categorías.
+    Promise.all([
+      sb.from(CATS).update({ sort_order: b.sort_order }).eq("slug", a.slug),
+      sb.from(CATS).update({ sort_order: a.sort_order }).eq("slug", b.slug)
+    ]).then(loadAll);
+  }
+
   el("addCatBtn").addEventListener("click", function () {
     var label = prompt("Nombre de la nueva categoría (ej. Alfombras):");
     if (!label) return;
@@ -330,5 +479,52 @@
       loadAll();
     });
   });
+
+  /* ============ IMÁGENES DE LA WEB ============ */
+  function renderSiteImages() {
+    var wrap = el("siteimgs");
+    if (!wrap) return;
+    wrap.innerHTML = SITE_IMAGES.map(function (s) {
+      var val = state.settings[s.key];
+      var prev = val
+        ? ' style="background-image:url(' + esc(val) + ')"'
+        : '';
+      return '<div class="simg">' +
+        '<h3>' + esc(s.title) + '</h3>' +
+        '<p>' + esc(s.desc) + '</p>' +
+        '<div class="simg__prev"' + prev + '>' + (val ? "" : "Sin foto propia (se ve el diseño por defecto)") + '</div>' +
+        '<label class="filebtn">📷 Cambiar foto<input type="file" accept="image/*" data-site="' + esc(s.key) + '" /></label>' +
+        (val ? '<button class="btn btn--danger btn--sm" style="margin-top:8px;width:100%;justify-content:center" data-siteclear="' + esc(s.key) + '">Quitar foto</button>' : '') +
+        '<p class="hint" data-sitemsg="' + esc(s.key) + '"></p>' +
+      '</div>';
+    }).join("");
+
+    wrap.querySelectorAll("[data-site]").forEach(function (inp) {
+      inp.addEventListener("change", function () {
+        var key = inp.getAttribute("data-site");
+        var file = inp.files && inp.files[0];
+        if (!file) return;
+        var msg = wrap.querySelector('[data-sitemsg="' + key + '"]');
+        msg.textContent = "Subiendo foto…";
+        uploadImage(file).then(function (url) {
+          return sb.from("lym_settings").upsert({ key: key, value: url, updated_at: new Date().toISOString() });
+        }).then(function (res) {
+          if (res && res.error) throw res.error;
+          loadAll();
+        }).catch(function (e) { msg.textContent = "No se pudo subir: " + (e.message || e); });
+      });
+    });
+
+    wrap.querySelectorAll("[data-siteclear]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var key = b.getAttribute("data-siteclear");
+        if (!confirm("¿Quitar esta foto y volver al diseño por defecto?")) return;
+        sb.from("lym_settings").delete().eq("key", key).then(function (res) {
+          if (res.error) { alert("No se pudo quitar: " + res.error.message); return; }
+          loadAll();
+        });
+      });
+    });
+  }
 
 })();
