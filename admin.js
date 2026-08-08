@@ -143,13 +143,18 @@
     Promise.all([
       sb.from(CATS).select("*").order("sort_order", { ascending: true }),
       sb.from(TABLE).select("*").order("sort_order", { ascending: true }),
-      sb.from("lym_settings").select("*")
+      sb.from("lym_settings").select("*"),
+      sb.from("lym_variants").select("*").order("sort_order", { ascending: true })
     ]).then(function (r) {
       state.categories = (r[0] && r[0].data) || [];
       if (r[1] && r[1].error) { alert("Error cargando productos: " + r[1].error.message); return; }
       state.products = (r[1] && r[1].data) || [];
       state.settings = {};
       ((r[2] && r[2].data) || []).forEach(function (s) { state.settings[s.key] = s.value; });
+      state.variants = {};
+      ((r[3] && r[3].data) || []).forEach(function (v) {
+        (state.variants[v.product_id] = state.variants[v.product_id] || []).push(v);
+      });
       fillCategorySelect();
       renderCatbar();
       renderList();
@@ -305,6 +310,68 @@
     refreshFramer();
   }
 
+  /* ---- Galería de fotos del producto ---- */
+  var gallery = [];
+  function renderGallery() {
+    var box = el("pgallery");
+    if (!gallery.length) { box.innerHTML = '<span class="gempty">Sin fotos adicionales.</span>'; return; }
+    box.innerHTML = gallery.map(function (u, i) {
+      return '<div class="gitem"><img src="' + esc(imgSrc(u)) + '" alt="" />' +
+             '<button type="button" data-gdel="' + i + '" title="Quitar">×</button></div>';
+    }).join("");
+    box.querySelectorAll("[data-gdel]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        gallery.splice(parseInt(b.getAttribute("data-gdel"), 10), 1);
+        renderGallery();
+      });
+    });
+  }
+  el("pgalfile").addEventListener("change", function () {
+    var files = Array.prototype.slice.call(this.files || []);
+    if (!files.length) return;
+    var hint = el("pgalHint");
+    hint.textContent = "Subiendo " + files.length + " foto(s)…";
+    Promise.all(files.map(uploadImage)).then(function (urls) {
+      urls.forEach(function (u) { gallery.push(u); });
+      renderGallery();
+      hint.textContent = "Fotos añadidas ✓";
+    }).catch(function (e) { hint.textContent = "No se pudo subir: " + (e.message || e); });
+    this.value = "";
+  });
+
+  /* ---- Colores y medidas ---- */
+  var variants = [];
+  function renderVariants() {
+    var box = el("pvariants");
+    if (!variants.length) { box.innerHTML = '<span class="gempty">Sin colores ni medidas: se usa el precio general.</span>'; return; }
+    box.innerHTML = '<div class="vhead"><span>Color</span><span>Medida</span><span>Precio</span><span></span></div>' +
+      variants.map(function (v, i) {
+        return '<div class="vrow">' +
+          '<input type="text" placeholder="Blanco" value="' + esc(v.color || "") + '" data-vc="' + i + '" />' +
+          '<input type="text" placeholder="150 cm" value="' + esc(v.size || "") + '" data-vs="' + i + '" />' +
+          '<input type="text" placeholder="32,90" value="' + esc(v.price || "") + '" data-vp="' + i + '" />' +
+          '<button type="button" data-vdel="' + i + '" title="Quitar">×</button>' +
+        '</div>';
+      }).join("");
+    [["vc", "color"], ["vs", "size"], ["vp", "price"]].forEach(function (pair) {
+      box.querySelectorAll("[data-" + pair[0] + "]").forEach(function (inp) {
+        inp.addEventListener("input", function () {
+          variants[parseInt(inp.getAttribute("data-" + pair[0]), 10)][pair[1]] = inp.value;
+        });
+      });
+    });
+    box.querySelectorAll("[data-vdel]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        variants.splice(parseInt(b.getAttribute("data-vdel"), 10), 1);
+        renderVariants();
+      });
+    });
+  }
+  el("paddvar").addEventListener("click", function () {
+    variants.push({ color: "", size: "", price: "" });
+    renderVariants();
+  });
+
   ["pzoom", "px", "py"].forEach(function (id) {
     el(id).addEventListener("input", function () {
       frame.zoom = parseInt(el("pzoom").value, 10);
@@ -356,6 +423,18 @@
       y: p && p.img_y != null ? p.img_y : 50
     };
     setImage(p ? (p.image || "cama.svg") : "cama.svg");
+
+    // Galería y variantes del producto
+    var g = p && p.gallery;
+    if (typeof g === "string") { try { g = JSON.parse(g); } catch (e) { g = []; } }
+    gallery = (g || []).slice();
+    el("pgalHint").textContent = "";
+    renderGallery();
+
+    variants = (state.variants[p ? p.id : ""] || []).map(function (v) {
+      return { color: v.color || "", size: v.size || "", price: v.price || "" };
+    });
+    renderVariants();
     el("pdesc").value = p ? (p.description || "") : "";
     // El campo "precio normal" muestra siempre el precio SIN descuento.
     // En una oferta guardada, ese precio base es el "precio anterior".
@@ -401,6 +480,7 @@
       name: name,
       category: el("pcategory").value,
       image: currentImage,
+      gallery: gallery,
       img_fit: frame.fit,
       img_zoom: frame.zoom,
       img_x: frame.x,
@@ -421,10 +501,34 @@
       ? sb.from(TABLE).update(payload).eq("id", id)
       : sb.from(TABLE).insert(payload);
 
+    if (!id) op = op.select();   // al crear, necesitamos el id para las variantes
     op.then(function (res) {
+      if (res.error) throw res.error;
+      var pid = id || (res.data && res.data[0] && res.data[0].id);
+      if (!pid) return null;
+      // Se reescriben las variantes del producto (borrar y volver a insertar):
+      // son pocas líneas y así el orden queda tal cual se ve en el panel.
+      return sb.from("lym_variants").delete().eq("product_id", pid).then(function () {
+        var rows = variants
+          .filter(function (v) { return (v.color || "").trim() || (v.size || "").trim(); })
+          .map(function (v, i) {
+            return {
+              product_id: pid,
+              color: (v.color || "").trim(),
+              size: (v.size || "").trim(),
+              price: normalizePrice(v.price),
+              sort_order: (i + 1) * 10
+            };
+          });
+        return rows.length ? sb.from("lym_variants").insert(rows) : null;
+      });
+    }).then(function (res) {
       btn.disabled = false; btn.textContent = "Guardar";
-      if (res.error) { msg.textContent = "No se pudo guardar: " + res.error.message; return; }
+      if (res && res.error) { msg.textContent = "Producto guardado, pero fallaron los colores: " + res.error.message; return; }
       closeForm(); loadAll();
+    }).catch(function (e) {
+      btn.disabled = false; btn.textContent = "Guardar";
+      msg.textContent = "No se pudo guardar: " + (e.message || e);
     });
   });
 
@@ -449,14 +553,51 @@
     wrap.innerHTML = state.categories.map(function (c, i) {
       var n = counts[c.slug] || 0;
       return '<div class="crow">' +
-        '<span class="crow__name">' + esc(c.label) + '</span>' +
-        '<span class="crow__n">' + n + ' producto' + (n === 1 ? "" : "s") + '</span>' +
-        '<button class="btn btn--ghost btn--sm" data-up="' + esc(c.slug) + '"' + (i === 0 ? " disabled" : "") + '>↑</button>' +
-        '<button class="btn btn--ghost btn--sm" data-down="' + esc(c.slug) + '"' + (i === state.categories.length - 1 ? " disabled" : "") + '>↓</button>' +
-        '<button class="btn btn--ghost btn--sm" data-cedit="' + esc(c.slug) + '">✎ Renombrar</button>' +
-        '<button class="btn btn--danger btn--sm" data-cdel="' + esc(c.slug) + '">🗑 Eliminar</button>' +
+        '<div class="gitem" style="flex:0 0 70px"><img src="' + esc(imgSrc(c.image || "cama.svg")) + '" alt="" /></div>' +
+        '<div style="flex:1;min-width:140px">' +
+          '<div class="crow__name">' + esc(c.label) + '</div>' +
+          '<div class="crow__n">' + n + ' producto' + (n === 1 ? "" : "s") + '</div>' +
+        '</div>' +
+        '<div style="flex:1 0 100%;display:flex;gap:6px;flex-wrap:wrap">' +
+          '<label class="filebtn" style="flex:1;min-width:130px">📷 Foto<input type="file" accept="image/*" data-cimg="' + esc(c.slug) + '" /></label>' +
+          '<button class="btn btn--ghost btn--sm" data-cedit="' + esc(c.slug) + '">✎ Nombre</button>' +
+          '<button class="btn btn--ghost btn--sm" data-cdesc="' + esc(c.slug) + '">✎ Texto</button>' +
+          '<button class="btn btn--ghost btn--sm" data-up="' + esc(c.slug) + '"' + (i === 0 ? " disabled" : "") + '>↑</button>' +
+          '<button class="btn btn--ghost btn--sm" data-down="' + esc(c.slug) + '"' + (i === state.categories.length - 1 ? " disabled" : "") + '>↓</button>' +
+          '<button class="btn btn--danger btn--sm" data-cdel="' + esc(c.slug) + '">🗑</button>' +
+        '</div>' +
+        '<p class="hint" data-cmsg="' + esc(c.slug) + '" style="flex:1 0 100%"></p>' +
       '</div>';
     }).join("");
+
+    wrap.querySelectorAll("[data-cimg]").forEach(function (inp) {
+      inp.addEventListener("change", function () {
+        var slug = inp.getAttribute("data-cimg");
+        var file = inp.files && inp.files[0];
+        if (!file) return;
+        var msg = wrap.querySelector('[data-cmsg="' + slug + '"]');
+        msg.textContent = "Subiendo foto…";
+        uploadImage(file).then(function (url) {
+          return sb.from(CATS).update({ image: url }).eq("slug", slug);
+        }).then(function (res) {
+          if (res && res.error) throw res.error;
+          loadAll();
+        }).catch(function (e) { msg.textContent = "No se pudo subir: " + (e.message || e); });
+      });
+    });
+
+    wrap.querySelectorAll("[data-cdesc]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var slug = b.getAttribute("data-cdesc");
+        var c = state.categories.find(function (x) { return x.slug === slug; });
+        var d = prompt("Texto que se ve bajo el nombre de la categoría:", (c && c.description) || "");
+        if (d === null) return;
+        sb.from(CATS).update({ description: d.trim() }).eq("slug", slug).then(function (res) {
+          if (res.error) { alert("No se pudo guardar: " + res.error.message); return; }
+          loadAll();
+        });
+      });
+    });
 
     wrap.querySelectorAll("[data-cedit]").forEach(function (b) {
       b.addEventListener("click", function () { renameCategory(b.getAttribute("data-cedit")); });

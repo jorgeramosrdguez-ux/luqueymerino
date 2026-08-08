@@ -293,6 +293,168 @@
     initCarousel();
   }
 
+  /* ---- Ficha de producto (ventana con galería y opciones) ---- */
+  var productsById = {}, variantsByProduct = {};
+  var pmodal = document.getElementById("pmodal");
+  var pmState = { product: null, color: null, size: null };
+
+  function galleryOf(p) {
+    var list = [];
+    if (p.image) list.push(p.image);
+    var g = p.gallery;
+    if (typeof g === "string") { try { g = JSON.parse(g); } catch (e) { g = []; } }
+    (g || []).forEach(function (u) { if (u && list.indexOf(u) < 0) list.push(u); });
+    return list;
+  }
+
+  function uniq(arr) {
+    var out = [];
+    arr.forEach(function (v) { if (v && out.indexOf(v) < 0) out.push(v); });
+    return out;
+  }
+
+  // Busca la variante que coincide con el color y la medida elegidos.
+  function findVariant(vars) {
+    return vars.filter(function (v) {
+      return (!pmState.color || (v.color || "") === pmState.color) &&
+             (!pmState.size || (v.size || "") === pmState.size);
+    })[0] || null;
+  }
+
+  function renderOptions() {
+    var box = document.getElementById("pmOptions");
+    var vars = variantsByProduct[pmState.product.id] || [];
+    box.innerHTML = "";
+    if (!vars.length) return;
+
+    var colors = uniq(vars.map(function (v) { return v.color; }));
+    var sizes = uniq(vars.map(function (v) { return v.size; }));
+
+    function group(label, values, key) {
+      if (!values.length) return;
+      var g = document.createElement("div");
+      g.className = "pmopt";
+      g.innerHTML = '<span class="pmopt__label">' + label + '</span>';
+      var row = document.createElement("div");
+      row.className = "pmopt__vals";
+      values.forEach(function (val) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "pmopt__btn" + (pmState[key] === val ? " is-active" : "");
+        b.textContent = val;
+        // Marca en gris las combinaciones que no existen
+        var other = key === "color" ? "size" : "color";
+        var possible = vars.some(function (v) {
+          return (v[key] || "") === val && (!pmState[other] || (v[other] || "") === pmState[other]);
+        });
+        if (!possible) b.disabled = true;
+        b.addEventListener("click", function () {
+          pmState[key] = pmState[key] === val ? null : val;
+          renderOptions();
+          updatePrice();
+        });
+        row.appendChild(b);
+      });
+      g.appendChild(row);
+      box.appendChild(g);
+    }
+    group("Color", colors, "color");
+    group("Medida", sizes, "size");
+  }
+
+  function updatePrice() {
+    var p = pmState.product;
+    var vars = variantsByProduct[p.id] || [];
+    var v = vars.length ? findVariant(vars) : null;
+    var price = (v && v.price) ? v.price : (p.price || "");
+    var html = escapeHtml(price);
+
+    // Sin elegir nada todavía: se muestra el precio más bajo como "Desde".
+    if (vars.length && !pmState.color && !pmState.size) {
+      var nums = vars.map(function (x) {
+        var n = parseFloat(String(x.price || "").replace(/[^0-9,.]/g, "").replace(/\./g, "").replace(",", "."));
+        return isNaN(n) ? null : { n: n, t: x.price };
+      }).filter(Boolean).sort(function (a, b) { return a.n - b.n; });
+      if (nums.length) { price = nums[0].t; html = 'Desde ' + escapeHtml(price); }
+    }
+
+    if (!v && p.is_offer && p.old_price) {
+      html = '<span class="product__old">' + escapeHtml(p.old_price) + '</span> ' + escapeHtml(price);
+    }
+    document.getElementById("pmPrice").innerHTML = html;
+    document.getElementById("pmNote").textContent = /presupuesto/i.test(price)
+      ? "Presupuesto a medida. Pásate por la tienda o pregúntanos."
+      : "Precio orientativo. Pásate por la tienda o pregúntanos.";
+
+    // Mensaje de WhatsApp con lo que ha elegido
+    var txt = "Hola Luque & Merino 👋\nMe interesa: " + p.name;
+    if (pmState.color) txt += "\nColor: " + pmState.color;
+    if (pmState.size) txt += "\nMedida: " + pmState.size;
+    if (price) txt += "\nPrecio indicado: " + price;
+    document.getElementById("pmWa").href = "https://wa.me/34679381294?text=" + encodeURIComponent(txt);
+  }
+
+  function openProduct(id) {
+    var p = productsById[id];
+    if (!p || !pmodal) return;
+    pmState = { product: p, color: null, size: null };
+
+    var cats = window.LYM_CATEGORIES || {};
+    document.getElementById("pmCat").textContent = cats[p.category] || p.category || "";
+    document.getElementById("pmName").textContent = p.name;
+    document.getElementById("pmDesc").textContent = p.description || "";
+
+    // Galería: foto principal y miniaturas
+    var imgs = galleryOf(p);
+    var main = document.getElementById("pmMain");
+    main.src = imgSrc(imgs[0]);
+    main.alt = p.name;
+    var thumbs = document.getElementById("pmThumbs");
+    thumbs.innerHTML = "";
+    if (imgs.length > 1) {
+      imgs.forEach(function (u, i) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = i === 0 ? "is-active" : "";
+        b.innerHTML = '<img src="' + escapeHtml(imgSrc(u)) + '" alt="" />';
+        b.addEventListener("click", function () {
+          main.src = imgSrc(u);
+          thumbs.querySelectorAll("button").forEach(function (x) { x.classList.remove("is-active"); });
+          b.classList.add("is-active");
+        });
+        thumbs.appendChild(b);
+      });
+    }
+
+    renderOptions();
+    updatePrice();
+    pmodal.hidden = false;
+    document.body.classList.add("pmodal-open");
+  }
+
+  function closeProduct() {
+    if (!pmodal) return;
+    pmodal.hidden = true;
+    document.body.classList.remove("pmodal-open");
+  }
+
+  if (pmodal) {
+    pmodal.addEventListener("click", function (e) {
+      if (e.target.closest("[data-close]")) closeProduct();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !pmodal.hidden) closeProduct();
+    });
+  }
+
+  // Abrir la ficha al pulsar una tarjeta del catálogo
+  if (catalogEl) {
+    catalogEl.addEventListener("click", function (e) {
+      var card = e.target.closest(".product");
+      if (card && card.getAttribute("data-id")) openProduct(card.getAttribute("data-id"));
+    });
+  }
+
   // Lleva la vista al producto indicado dentro del catálogo y lo resalta.
   function goToProduct(id) {
     setFilter("all");
@@ -330,6 +492,47 @@
     });
   }
 
+  /* ---- Tarjetas de categoría (con la foto que elija la tienda) ---- */
+  function renderCategoryCards(catMeta) {
+    var wrap = document.querySelector(".cats");
+    if (!wrap || !catMeta.length) return;
+    // Se conserva la tarjeta de Bordados, que no es una categoría del catálogo.
+    var bordados = wrap.querySelector('[data-cat="bordados"]');
+    wrap.innerHTML = "";
+    catMeta.forEach(function (c) {
+      var a = document.createElement("a");
+      a.className = "cat reveal is-visible";
+      a.href = "#catalogo";
+      a.setAttribute("data-cat-filter", c.slug);
+      var style = "";
+      if (c.image) {
+        style = ' style="object-fit:cover;width:100%;height:100%;object-position:' +
+          (c.img_x == null ? 50 : c.img_x) + "% " + (c.img_y == null ? 50 : c.img_y) +
+          '%;--z:' + ((c.img_zoom || 100) / 100) + '"';
+      }
+      a.innerHTML =
+        '<div class="cat__img"><img src="' + escapeHtml(imgSrc(c.image || catFallbackImg(c.slug))) +
+          '" alt="' + escapeHtml(c.label) + '" loading="lazy"' + style + ' /></div>' +
+        '<div class="cat__body">' +
+          '<h3>' + escapeHtml(c.label) + '</h3>' +
+          '<p>' + escapeHtml(c.description || "") + '</p>' +
+          '<span class="cat__link">Ver productos →</span>' +
+        '</div>';
+      a.addEventListener("click", function () { setFilter(c.slug); });
+      wrap.appendChild(a);
+    });
+    if (bordados) wrap.appendChild(bordados);
+  }
+
+  // Ilustración de reserva mientras la tienda no suba su propia foto.
+  function catFallbackImg(slug) {
+    var m = {
+      "textil": "cama.svg", "cortinas": "cortinas.svg", "cama-infantil": "cuna.svg",
+      "colchon": "colchon.svg", "bebe": "bebe.svg"
+    };
+    return m[slug] || "cama.svg";
+  }
+
   function loadCatalog() {
     var cfg = window.LYM_SUPABASE;
     if (!catalogEl || !cfg || !window.supabase) return;
@@ -343,14 +546,24 @@
       // Categorías (para orden y nombres) y productos activos, en paralelo.
       var pCats = sb.from("lym_categories").select("*").order("sort_order", { ascending: true });
       var pProd = sb.from(cfg.table).select("*").eq("active", true).order("sort_order", { ascending: true });
+      var pVars = sb.from("lym_variants").select("*").order("sort_order", { ascending: true });
 
-      Promise.all([pCats, pProd]).then(function (results) {
+      Promise.all([pCats, pProd, pVars]).then(function (results) {
         var catMeta = (results[0] && results[0].data) || [];
         var prod = results[1] || {};
         if (prod.error) { console.warn("Catálogo: usando demo (", prod.error.message, ")"); return; }
         var rows = prod.data || [];
         if (!rows.length) return; // base de datos vacía → se queda la demo
 
+        // Variantes (color / medida / precio) agrupadas por producto
+        variantsByProduct = {};
+        (((results[2] && results[2].data) || [])).forEach(function (v) {
+          (variantsByProduct[v.product_id] = variantsByProduct[v.product_id] || []).push(v);
+        });
+        productsById = {};
+        rows.forEach(function (p) { productsById[p.id] = p; });
+
+        renderCategoryCards(catMeta);
         renderFilters(rows, catMeta);
         catalogEl.innerHTML = "";
         rows.forEach(function (p) { catalogEl.appendChild(productCard(p)); });

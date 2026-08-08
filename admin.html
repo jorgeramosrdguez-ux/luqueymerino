@@ -91,6 +91,21 @@
     .framer__btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
     .framer__btns .btn{flex:1;justify-content:center}
 
+    /* ---- Galería de fotos del producto ---- */
+    .gallery{display:flex;gap:8px;flex-wrap:wrap}
+    .gitem{position:relative;width:70px;height:70px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#fff}
+    .gitem img{width:100%;height:100%;object-fit:cover}
+    .gitem button{position:absolute;top:2px;right:2px;width:22px;height:22px;border:0;border-radius:50%;background:rgba(255,255,255,.92);color:var(--danger);font-weight:700;line-height:1;cursor:pointer;font-size:.9rem;padding:0}
+    .gempty{font-size:.8rem;color:var(--ink-soft)}
+
+    /* ---- Colores y medidas ---- */
+    .vrow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+    .vrow input{flex:1;min-width:0;padding:.55rem .6rem;border:1px solid var(--line);border-radius:8px;font-family:var(--sans);font-size:.88rem}
+    .vrow button{flex:0 0 auto;border:1px solid #e7c9c6;background:#fff;color:var(--danger);border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:.95rem}
+    .vhead{display:flex;gap:6px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:4px}
+    .vhead span{flex:1}
+    .vhead span:last-child{flex:0 0 34px}
+
     /* ---- Imágenes de la web ---- */
     .siteimgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
     .simg{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px}
@@ -288,9 +303,31 @@
         </div>
       </div>
 
+      <!-- Más fotos del producto -->
+      <div class="field">
+        <label>Más fotos <span style="font-weight:400;color:var(--ink-soft)">(se ven al pinchar el producto)</span></label>
+        <div class="gallery" id="pgallery"></div>
+        <label class="filebtn" style="margin-top:8px">
+          ➕ Añadir foto a la galería
+          <input type="file" id="pgalfile" accept="image/*" multiple />
+        </label>
+        <p class="hint" id="pgalHint"></p>
+      </div>
+
       <div class="field">
         <label for="pdesc">Descripción corta</label>
         <textarea id="pdesc" rows="2" placeholder="Ej. Algodón · encimera, bajera y fundas."></textarea>
+      </div>
+
+      <!-- Colores y medidas -->
+      <div class="field">
+        <label>Colores y medidas <span style="font-weight:400;color:var(--ink-soft)">(opcional)</span></label>
+        <p class="hint" style="margin:0 0 8px">
+          Añade una línea por cada combinación. Si un producto solo cambia de medida, deja el color en blanco.
+          El precio de cada línea manda sobre el precio general.
+        </p>
+        <div id="pvariants"></div>
+        <button type="button" class="btn btn--ghost btn--sm" id="paddvar" style="width:100%;justify-content:center;margin-top:8px">➕ Añadir color / medida</button>
       </div>
 
       <div class="row2">
