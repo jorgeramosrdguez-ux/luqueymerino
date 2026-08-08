@@ -394,6 +394,120 @@
     document.getElementById("pmWa").href = "https://wa.me/34679381294?text=" + encodeURIComponent(txt);
   }
 
+  /* ---- Visor de fotos a pantalla completa con zoom ---- */
+  var zoomer = document.getElementById("zoomer");
+  var zStage = document.getElementById("zStage");
+  var zImg = document.getElementById("zImg");
+  var zv = { list: [], i: 0, scale: 1, tx: 0, ty: 0, pointers: {}, startDist: 0, startScale: 1, moved: false };
+  var MIN_Z = 1, MAX_Z = 4;
+
+  function zApply() {
+    // No dejamos que la foto se salga del todo de la pantalla al arrastrar.
+    var r = zStage.getBoundingClientRect();
+    var maxX = Math.max(0, (r.width * zv.scale - r.width) / 2);
+    var maxY = Math.max(0, (r.height * zv.scale - r.height) / 2);
+    zv.tx = Math.max(-maxX, Math.min(maxX, zv.tx));
+    zv.ty = Math.max(-maxY, Math.min(maxY, zv.ty));
+    zImg.style.transform = "translate(" + zv.tx + "px," + zv.ty + "px) scale(" + zv.scale + ")";
+    zStage.classList.toggle("is-zoomed", zv.scale > 1);
+    document.getElementById("zLevel").textContent = Math.round(zv.scale * 100) + "%";
+  }
+  function zSet(scale) {
+    zv.scale = Math.max(MIN_Z, Math.min(MAX_Z, scale));
+    if (zv.scale === 1) { zv.tx = 0; zv.ty = 0; }
+    zApply();
+  }
+  function zShow(i) {
+    zv.i = (i + zv.list.length) % zv.list.length;
+    zImg.src = imgSrc(zv.list[zv.i]);
+    zv.scale = 1; zv.tx = 0; zv.ty = 0; zApply();
+    var many = zv.list.length > 1;
+    document.getElementById("zPrev").hidden = !many;
+    document.getElementById("zNext").hidden = !many;
+  }
+  function openZoom(list, i) {
+    if (!zoomer || !list.length) return;
+    zv.list = list;
+    zoomer.hidden = false;
+    document.body.classList.add("pmodal-open");
+    zShow(i || 0);
+    var hint = document.getElementById("zHint");
+    hint.classList.remove("is-off");
+    setTimeout(function () { hint.classList.add("is-off"); }, 2600);
+  }
+  function closeZoom() {
+    if (!zoomer) return;
+    zoomer.hidden = true;
+    if (pmodal && pmodal.hidden) document.body.classList.remove("pmodal-open");
+  }
+
+  if (zoomer) {
+    document.getElementById("zClose").addEventListener("click", closeZoom);
+    document.getElementById("zPrev").addEventListener("click", function () { zShow(zv.i - 1); });
+    document.getElementById("zNext").addEventListener("click", function () { zShow(zv.i + 1); });
+    document.getElementById("zIn").addEventListener("click", function () { zSet(zv.scale + 0.5); });
+    document.getElementById("zOut").addEventListener("click", function () { zSet(zv.scale - 0.5); });
+
+    // Rueda del ratón
+    zStage.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      zSet(zv.scale + (e.deltaY < 0 ? 0.25 : -0.25));
+    }, { passive: false });
+
+    // Dedos y ratón: arrastrar para mover, pellizcar para ampliar
+    zStage.addEventListener("pointerdown", function (e) {
+      zStage.setPointerCapture(e.pointerId);
+      zv.pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+      zv.moved = false;
+      var ids = Object.keys(zv.pointers);
+      if (ids.length === 2) {
+        var a = zv.pointers[ids[0]], b = zv.pointers[ids[1]];
+        zv.startDist = Math.hypot(a.x - b.x, a.y - b.y);
+        zv.startScale = zv.scale;
+      }
+      zStage.classList.add("is-dragging");
+    });
+    zStage.addEventListener("pointermove", function (e) {
+      var p = zv.pointers[e.pointerId];
+      if (!p) return;
+      var ids = Object.keys(zv.pointers);
+      if (ids.length === 2 && zv.startDist) {
+        p.x = e.clientX; p.y = e.clientY;
+        var a = zv.pointers[ids[0]], b = zv.pointers[ids[1]];
+        var d = Math.hypot(a.x - b.x, a.y - b.y);
+        zv.moved = true;
+        zSet(zv.startScale * (d / zv.startDist));
+        return;
+      }
+      var dx = e.clientX - p.x, dy = e.clientY - p.y;
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) zv.moved = true;
+      if (zv.scale > 1) { zv.tx += dx; zv.ty += dy; zApply(); }
+      p.x = e.clientX; p.y = e.clientY;
+    });
+    function endPointer(e) {
+      var had = zv.pointers[e.pointerId];
+      delete zv.pointers[e.pointerId];
+      if (!Object.keys(zv.pointers).length) {
+        zStage.classList.remove("is-dragging");
+        zv.startDist = 0;
+        // Un toque limpio (sin arrastrar) alterna entre ampliada y normal
+        if (had && !zv.moved) zSet(zv.scale > 1 ? 1 : 2.5);
+      }
+    }
+    zStage.addEventListener("pointerup", endPointer);
+    zStage.addEventListener("pointercancel", endPointer);
+
+    document.addEventListener("keydown", function (e) {
+      if (zoomer.hidden) return;
+      if (e.key === "Escape") {
+        closeZoom();
+        e.stopImmediatePropagation();   // que Escape no cierre además la ficha
+      }
+      if (e.key === "ArrowLeft") zShow(zv.i - 1);
+      if (e.key === "ArrowRight") zShow(zv.i + 1);
+    });
+  }
+
   function openProduct(id) {
     var p = productsById[id];
     if (!p || !pmodal) return;
@@ -409,6 +523,8 @@
     var main = document.getElementById("pmMain");
     main.src = imgSrc(imgs[0]);
     main.alt = p.name;
+    pmState.images = imgs;
+    pmState.imgIndex = 0;
     var thumbs = document.getElementById("pmThumbs");
     thumbs.innerHTML = "";
     if (imgs.length > 1) {
@@ -419,6 +535,7 @@
         b.innerHTML = '<img src="' + escapeHtml(imgSrc(u)) + '" alt="" />';
         b.addEventListener("click", function () {
           main.src = imgSrc(u);
+          pmState.imgIndex = i;
           thumbs.querySelectorAll("button").forEach(function (x) { x.classList.remove("is-active"); });
           b.classList.add("is-active");
         });
@@ -442,8 +559,16 @@
     pmodal.addEventListener("click", function (e) {
       if (e.target.closest("[data-close]")) closeProduct();
     });
+    // Pulsar la foto de la ficha la abre a pantalla completa para verla de cerca
+    var stage = pmodal.querySelector(".pmodal__stage");
+    if (stage) {
+      stage.addEventListener("click", function () {
+        openZoom(pmState.images || [], pmState.imgIndex || 0);
+      });
+    }
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && !pmodal.hidden) closeProduct();
+      // Si el visor de fotos está abierto, Escape lo cierra solo a él.
+      if (e.key === "Escape" && !pmodal.hidden && (!zoomer || zoomer.hidden)) closeProduct();
     });
   }
 
