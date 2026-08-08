@@ -304,6 +304,10 @@
     var g = p.gallery;
     if (typeof g === "string") { try { g = JSON.parse(g); } catch (e) { g = []; } }
     (g || []).forEach(function (u) { if (u && list.indexOf(u) < 0) list.push(u); });
+    // Las fotos de cada color/medida también forman parte de la galería
+    (variantsByProduct[p.id] || []).forEach(function (v) {
+      if (v.image && list.indexOf(v.image) < 0) list.push(v.image);
+    });
     return list;
   }
 
@@ -382,6 +386,9 @@
       html = '<span class="product__old">' + escapeHtml(p.old_price) + '</span> ' + escapeHtml(price);
     }
     document.getElementById("pmPrice").innerHTML = html;
+
+    // Si la combinación elegida tiene su propia foto, se muestra.
+    if (v && v.image) showProductImage(v.image);
     document.getElementById("pmNote").textContent = /presupuesto/i.test(price)
       ? "Presupuesto a medida. Pásate por la tienda o pregúntanos."
       : "Precio orientativo. Pásate por la tienda o pregúntanos.";
@@ -505,6 +512,18 @@
       }
       if (e.key === "ArrowLeft") zShow(zv.i - 1);
       if (e.key === "ArrowRight") zShow(zv.i + 1);
+    });
+  }
+
+  // Muestra una foto concreta del producto y marca su miniatura.
+  function showProductImage(url) {
+    var imgs = pmState.images || [];
+    var i = imgs.indexOf(url);
+    if (i < 0) return;
+    document.getElementById("pmMain").src = imgSrc(url);
+    pmState.imgIndex = i;
+    document.getElementById("pmThumbs").querySelectorAll("button").forEach(function (b, n) {
+      b.classList.toggle("is-active", n === i);
     });
   }
 

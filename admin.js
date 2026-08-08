@@ -344,15 +344,26 @@
   function renderVariants() {
     var box = el("pvariants");
     if (!variants.length) { box.innerHTML = '<span class="gempty">Sin colores ni medidas: se usa el precio general.</span>'; return; }
-    box.innerHTML = '<div class="vhead"><span>Color</span><span>Medida</span><span>Precio</span><span></span></div>' +
-      variants.map(function (v, i) {
-        return '<div class="vrow">' +
-          '<input type="text" placeholder="Blanco" value="' + esc(v.color || "") + '" data-vc="' + i + '" />' +
-          '<input type="text" placeholder="150 cm" value="' + esc(v.size || "") + '" data-vs="' + i + '" />' +
-          '<input type="text" placeholder="32,90" value="' + esc(v.price || "") + '" data-vp="' + i + '" />' +
-          '<button type="button" data-vdel="' + i + '" title="Quitar">×</button>' +
-        '</div>';
-      }).join("");
+    box.innerHTML = variants.map(function (v, i) {
+      return '<div class="vcard">' +
+        '<div class="vcard__img">' +
+          (v.image ? '<img src="' + esc(imgSrc(v.image)) + '" alt="" />' : '<span>sin foto</span>') +
+        '</div>' +
+        '<div class="vcard__fields">' +
+          '<div class="vrow">' +
+            '<input type="text" placeholder="Color (ej. Blanco)" value="' + esc(v.color || "") + '" data-vc="' + i + '" />' +
+            '<input type="text" placeholder="Medida (ej. 150 cm)" value="' + esc(v.size || "") + '" data-vs="' + i + '" />' +
+          '</div>' +
+          '<div class="vrow">' +
+            '<input type="text" placeholder="Precio (ej. 32,90)" value="' + esc(v.price || "") + '" data-vp="' + i + '" />' +
+            '<label class="filebtn filebtn--mini">📷 Foto<input type="file" accept="image/*" data-vimg="' + i + '" /></label>' +
+          '</div>' +
+          '<p class="hint" data-vmsg="' + i + '"></p>' +
+        '</div>' +
+        '<button type="button" class="vcard__del" data-vdel="' + i + '" title="Quitar">×</button>' +
+      '</div>';
+    }).join("");
+
     [["vc", "color"], ["vs", "size"], ["vp", "price"]].forEach(function (pair) {
       box.querySelectorAll("[data-" + pair[0] + "]").forEach(function (inp) {
         inp.addEventListener("input", function () {
@@ -364,6 +375,20 @@
       b.addEventListener("click", function () {
         variants.splice(parseInt(b.getAttribute("data-vdel"), 10), 1);
         renderVariants();
+      });
+    });
+    // Foto propia de cada color / medida
+    box.querySelectorAll("[data-vimg]").forEach(function (inp) {
+      inp.addEventListener("change", function () {
+        var i = parseInt(inp.getAttribute("data-vimg"), 10);
+        var file = inp.files && inp.files[0];
+        if (!file) return;
+        var msg = box.querySelector('[data-vmsg="' + i + '"]');
+        msg.textContent = "Subiendo foto…";
+        uploadImage(file).then(function (url) {
+          variants[i].image = url;
+          renderVariants();
+        }).catch(function (e) { msg.textContent = "No se pudo subir: " + (e.message || e); });
       });
     });
   }
@@ -432,7 +457,7 @@
     renderGallery();
 
     variants = (state.variants[p ? p.id : ""] || []).map(function (v) {
-      return { color: v.color || "", size: v.size || "", price: v.price || "" };
+      return { color: v.color || "", size: v.size || "", price: v.price || "", image: v.image || null };
     });
     renderVariants();
     el("pdesc").value = p ? (p.description || "") : "";
@@ -476,11 +501,20 @@
       discount = pct;
     }
 
+    // Las fotos de cada color/medida se suman también a las fotos
+    // adicionales del producto, para que salgan en la galería.
+    var fullGallery = gallery.slice();
+    variants.forEach(function (v) {
+      if (v.image && v.image !== currentImage && fullGallery.indexOf(v.image) < 0) {
+        fullGallery.push(v.image);
+      }
+    });
+
     var payload = {
       name: name,
       category: el("pcategory").value,
       image: currentImage,
-      gallery: gallery,
+      gallery: fullGallery,
       img_fit: frame.fit,
       img_zoom: frame.zoom,
       img_x: frame.x,
@@ -517,6 +551,7 @@
               color: (v.color || "").trim(),
               size: (v.size || "").trim(),
               price: normalizePrice(v.price),
+              image: v.image || null,
               sort_order: (i + 1) * 10
             };
           });
