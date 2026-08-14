@@ -588,11 +588,17 @@
     wrap.innerHTML = state.categories.map(function (c, i) {
       var n = counts[c.slug] || 0;
       return '<div class="crow">' +
-        '<div class="gitem" style="flex:0 0 70px"><img src="' + esc(imgSrc(c.image || "cama.svg")) + '" alt="" /></div>' +
+        '<div class="gitem" style="flex:0 0 70px"><img data-cprev="' + esc(c.slug) + '" src="' + esc(imgSrc(c.image || "cama.svg")) + '" alt="" /></div>' +
         '<div style="flex:1;min-width:140px">' +
           '<div class="crow__name">' + esc(c.label) + '</div>' +
           '<div class="crow__n">' + n + ' producto' + (n === 1 ? "" : "s") + '</div>' +
         '</div>' +
+        (c.image ? '<div style="flex:1 0 100%">' +
+          '<div class="framer__row"><span>🔍 Tamaño</span><input type="range" min="100" max="250" value="' + (c.img_zoom || 100) + '" data-cz="' + esc(c.slug) + '" /></div>' +
+          '<div class="framer__row"><span>↔️ Horizontal</span><input type="range" min="0" max="100" value="' + (c.img_x == null ? 50 : c.img_x) + '" data-cx="' + esc(c.slug) + '" /></div>' +
+          '<div class="framer__row"><span>↕️ Vertical</span><input type="range" min="0" max="100" value="' + (c.img_y == null ? 50 : c.img_y) + '" data-cy="' + esc(c.slug) + '" /></div>' +
+          '<button class="btn btn--primary btn--sm" style="width:100%;justify-content:center;margin-top:8px" data-csave="' + esc(c.slug) + '">Guardar encuadre</button>' +
+        '</div>' : '') +
         '<div style="flex:1 0 100%;display:flex;gap:6px;flex-wrap:wrap">' +
           '<label class="filebtn" style="flex:1;min-width:130px">📷 Foto<input type="file" accept="image/*" data-cimg="' + esc(c.slug) + '" /></label>' +
           '<button class="btn btn--ghost btn--sm" data-cedit="' + esc(c.slug) + '">✎ Nombre</button>' +
@@ -618,6 +624,43 @@
           if (res && res.error) throw res.error;
           loadAll();
         }).catch(function (e) { msg.textContent = "No se pudo subir: " + (e.message || e); });
+      });
+    });
+
+    // Encuadre de la foto de cada categoría (vista previa en vivo)
+    state.categories.forEach(function (c) {
+      var img = wrap.querySelector('[data-cprev="' + c.slug + '"]');
+      if (c.image && img) applyFrame(img, { fit: "cover", zoom: c.img_zoom, x: c.img_x, y: c.img_y });
+    });
+    function catLive(slug) {
+      var img = wrap.querySelector('[data-cprev="' + slug + '"]');
+      if (!img) return;
+      applyFrame(img, {
+        fit: "cover",
+        zoom: parseInt(wrap.querySelector('[data-cz="' + slug + '"]').value, 10),
+        x: parseInt(wrap.querySelector('[data-cx="' + slug + '"]').value, 10),
+        y: parseInt(wrap.querySelector('[data-cy="' + slug + '"]').value, 10)
+      });
+    }
+    ["cz", "cx", "cy"].forEach(function (attr) {
+      wrap.querySelectorAll("[data-" + attr + "]").forEach(function (r) {
+        r.addEventListener("input", function () { catLive(r.getAttribute("data-" + attr)); });
+      });
+    });
+    wrap.querySelectorAll("[data-csave]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var slug = b.getAttribute("data-csave");
+        var msg = wrap.querySelector('[data-cmsg="' + slug + '"]');
+        msg.textContent = "Guardando…";
+        sb.from(CATS).update({
+          img_zoom: parseInt(wrap.querySelector('[data-cz="' + slug + '"]').value, 10),
+          img_x: parseInt(wrap.querySelector('[data-cx="' + slug + '"]').value, 10),
+          img_y: parseInt(wrap.querySelector('[data-cy="' + slug + '"]').value, 10)
+        }).eq("slug", slug).then(function (res) {
+          if (res.error) { msg.textContent = "No se pudo guardar: " + res.error.message; return; }
+          msg.textContent = "Encuadre guardado ✓";
+          loadAll();
+        });
       });
     });
 

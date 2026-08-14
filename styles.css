@@ -273,11 +273,18 @@ body.menu-open { overflow: hidden; }
 .cat--lg { grid-column: span 3; }
 .cat:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
 .cat__img {
-  height: 210px; position: relative; display: grid; place-items: center;
+  height: 210px; position: relative; overflow: hidden; display: grid; place-items: center;
   background: linear-gradient(160deg, #ffffff, #f4f2f1);
   border-bottom: 1px solid var(--line);
 }
 .cat__img img { width: 74%; height: 78%; object-fit: contain; transition: transform .35s var(--ease); }
+/* Foto real de la categoría: ocupa el hueco entero sin desbordarlo,
+   sea cual sea el tamaño o la orientación de la imagen */
+.cat__img img.cat-photo {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; transform: scale(var(--z, 1));
+}
+.cat:hover .cat__img img.cat-photo { transform: scale(calc(var(--z, 1) * 1.06)); }
 .cat:hover .cat__img img { transform: scale(1.06); }
 .cat--lg .cat__img { height: 250px; }
 .cat__body { padding: 1.4rem 1.5rem 1.6rem; }

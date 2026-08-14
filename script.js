@@ -648,18 +648,20 @@
       a.className = "cat reveal is-visible";
       a.href = "#catalogo";
       a.setAttribute("data-cat-filter", c.slug);
-      var style = "";
+      var cls = "", style = "";
       if (c.image) {
-        style = ' style="object-fit:cover;width:100%;height:100%;object-position:' +
+        cls = " class=\"cat-photo\"";
+        style = ' style="object-position:' +
           (c.img_x == null ? 50 : c.img_x) + "% " + (c.img_y == null ? 50 : c.img_y) +
           '%;--z:' + ((c.img_zoom || 100) / 100) + '"';
       }
+      var desc = (c.description || "").trim();
       a.innerHTML =
-        '<div class="cat__img"><img src="' + escapeHtml(imgSrc(c.image || catFallbackImg(c.slug))) +
+        '<div class="cat__img"><img' + cls + ' src="' + escapeHtml(imgSrc(c.image || catFallbackImg(c.slug))) +
           '" alt="' + escapeHtml(c.label) + '" loading="lazy"' + style + ' /></div>' +
         '<div class="cat__body">' +
           '<h3>' + escapeHtml(c.label) + '</h3>' +
-          '<p>' + escapeHtml(c.description || "") + '</p>' +
+          (desc ? '<p>' + escapeHtml(desc) + '</p>' : '') +
           '<span class="cat__link">Ver productos →</span>' +
         '</div>';
       a.addEventListener("click", function () { setFilter(c.slug); });
