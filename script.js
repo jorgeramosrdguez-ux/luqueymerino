@@ -640,8 +640,6 @@
   function renderCategoryCards(catMeta) {
     var wrap = document.querySelector(".cats");
     if (!wrap || !catMeta.length) return;
-    // Se conserva la tarjeta de Bordados, que no es una categoría del catálogo.
-    var bordados = wrap.querySelector('[data-cat="bordados"]');
     wrap.innerHTML = "";
     catMeta.forEach(function (c) {
       var a = document.createElement("a");
@@ -667,7 +665,6 @@
       a.addEventListener("click", function () { setFilter(c.slug); });
       wrap.appendChild(a);
     });
-    if (bordados) wrap.appendChild(bordados);
   }
 
   // Ilustración de reserva mientras la tienda no suba su propia foto.
