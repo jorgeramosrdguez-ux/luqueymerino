@@ -613,9 +613,46 @@
   }
 
   // Aplica las fotos que el cliente haya subido para las secciones grandes.
+  // Banner de ofertas de la portada: texto, foto y si se muestra o no.
+  function applyPromo(raw) {
+    var wrap = document.querySelector(".promo-wrap");
+    if (!wrap || !raw) return;               // sin ajustes: se queda el de por defecto
+    var p;
+    try { p = JSON.parse(raw); } catch (e) { return; }
+
+    if (p.active === false) { wrap.hidden = true; return; }
+    wrap.hidden = false;
+
+    var box = wrap.querySelector(".promo");
+    var h2 = box.querySelector(".promo__text h2");
+    var txt = box.querySelector(".promo__text p");
+    var cta = box.querySelector(".promo__cta");
+
+    // Los porcentajes se resaltan solos en dorado
+    if (p.title) {
+      h2.innerHTML = escapeHtml(p.title).replace(/(-?\s?\d{1,3}\s?%)/g, "<strong>$1</strong>");
+    }
+    if (txt) {
+      if (p.text) { txt.textContent = p.text; txt.hidden = false; }
+      else { txt.hidden = true; }
+    }
+    if (cta && p.cta) cta.textContent = p.cta + " →";
+
+    // Foto del producto en oferta
+    var old = box.querySelector(".promo__photo");
+    if (old) old.remove();
+    if (p.image) {
+      var fig = document.createElement("div");
+      fig.className = "promo__photo";
+      fig.innerHTML = '<img src="' + escapeHtml(p.image) + '" alt="" loading="lazy" />';
+      box.insertBefore(fig, box.firstChild);
+    }
+  }
+
   function applySiteImages(rows) {
     var map = {};
     (rows || []).forEach(function (s) { map[s.key] = s.value; });
+    applyPromo(map.promo);
     document.querySelectorAll("[data-site-img]").forEach(function (box) {
       var raw = map[box.getAttribute("data-site-img")];
       if (!raw) return;

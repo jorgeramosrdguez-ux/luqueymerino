@@ -109,6 +109,9 @@
     .vrow input{flex:1;min-width:0;padding:.5rem .55rem;border:1px solid var(--line);border-radius:8px;font-family:var(--sans);font-size:.85rem;background:#fff}
     .filebtn--mini{flex:0 0 auto;width:auto;padding:.45rem .7rem;font-size:.8rem;margin:0}
 
+    /* ---- Banner de ofertas ---- */
+    .promo-edit{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;max-width:620px}
+
     /* ---- Imágenes de la web ---- */
     .siteimgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
     .simg{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px}
@@ -208,6 +211,7 @@
       <nav class="tabs">
         <button class="tab is-active" data-tab="products">Productos</button>
         <button class="tab" data-tab="categories">Categorías</button>
+        <button class="tab" data-tab="promo">Banner de ofertas</button>
         <button class="tab" data-tab="site">Imágenes de la web</button>
       </nav>
 
@@ -242,6 +246,48 @@
           <button class="btn btn--primary" id="addCatBtn" type="button">+ Nueva categoría</button>
         </div>
         <div class="catlist" id="catlist"></div>
+      </section>
+
+      <!-- ===== PESTAÑA: BANNER DE OFERTAS ===== -->
+      <section id="tab-promo" class="hidden">
+        <div class="panel-head">
+          <div>
+            <h1>Banner de ofertas</h1>
+            <p>La franja de ofertas que sale en la portada. Si lo desactivas, desaparece de la web.</p>
+          </div>
+        </div>
+
+        <div class="promo-edit">
+          <div class="check" style="margin-bottom:14px">
+            <input type="checkbox" id="prActive" />
+            <label for="prActive" style="margin:0"><strong>Mostrar el banner en la web</strong></label>
+          </div>
+
+          <div class="field">
+            <label for="prTitle">Titular</label>
+            <input type="text" id="prTitle" placeholder="Ej. Hasta -30% en textil de temporada" />
+            <p class="hint">Los porcentajes (‑30%) se resaltan solos en dorado.</p>
+          </div>
+
+          <div class="field">
+            <label for="prText">Texto</label>
+            <textarea id="prText" rows="2" placeholder="Ej. Toallas y ropa de cama seleccionadas. Mientras haya existencias."></textarea>
+          </div>
+
+          <div class="field">
+            <label for="prCta">Texto del botón</label>
+            <input type="text" id="prCta" placeholder="Ver ofertas" />
+          </div>
+
+          <div class="field">
+            <label>Foto del producto en oferta <span style="font-weight:400;color:var(--ink-soft)">(opcional)</span></label>
+            <div id="prImgBox"></div>
+            <label class="filebtn" style="margin-top:8px">📷 Poner foto<input type="file" id="prFile" accept="image/*" /></label>
+          </div>
+
+          <div class="msg" id="prMsg"></div>
+          <button class="btn btn--primary" id="prSave" style="width:100%;justify-content:center;margin-top:6px">Guardar banner</button>
+        </div>
       </section>
 
       <!-- ===== PESTAÑA: IMÁGENES DE LA WEB ===== -->

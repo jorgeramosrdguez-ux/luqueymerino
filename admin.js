@@ -132,7 +132,7 @@
     t.addEventListener("click", function () {
       var name = t.getAttribute("data-tab");
       document.querySelectorAll(".tab").forEach(function (x) { x.classList.toggle("is-active", x === t); });
-      ["products", "categories", "site"].forEach(function (n) {
+      ["products", "categories", "promo", "site"].forEach(function (n) {
         el("tab-" + n).classList.toggle("hidden", n !== name);
       });
     });
@@ -159,6 +159,7 @@
       renderCatbar();
       renderList();
       renderCatList();
+      renderPromo();
       renderSiteImages();
     });
   }
@@ -745,6 +746,59 @@
     var maxOrder = state.categories.reduce(function (m, c) { return Math.max(m, c.sort_order || 0); }, 0);
     sb.from(CATS).insert({ slug: slug, label: label, sort_order: maxOrder + 10 }).then(function (res) {
       if (res.error) { alert("No se pudo crear la categoría: " + res.error.message); return; }
+      loadAll();
+    });
+  });
+
+  /* ============ BANNER DE OFERTAS ============ */
+  var promo = {};
+  function renderPromo() {
+    var raw = state.settings.promo;
+    promo = {};
+    if (raw) { try { promo = JSON.parse(raw); } catch (e) { promo = {}; } }
+    el("prActive").checked = promo.active !== false && !!raw;
+    el("prTitle").value = promo.title || "";
+    el("prText").value = promo.text || "";
+    el("prCta").value = promo.cta || "";
+    el("prMsg").textContent = "";
+    renderPromoImg();
+  }
+  function renderPromoImg() {
+    var box = el("prImgBox");
+    if (!promo.image) { box.innerHTML = '<span class="gempty">Sin foto: el banner sale solo con el texto.</span>'; return; }
+    box.innerHTML = '<div class="gitem" style="width:96px;height:96px"><img src="' + esc(promo.image) + '" alt="" />' +
+                    '<button type="button" id="prImgDel" title="Quitar">×</button></div>';
+    box.querySelector("#prImgDel").addEventListener("click", function () {
+      promo.image = null; renderPromoImg();
+    });
+  }
+  el("prFile").addEventListener("change", function () {
+    var file = this.files && this.files[0];
+    if (!file) return;
+    el("prMsg").textContent = "Subiendo foto…";
+    uploadImage(file).then(function (url) {
+      promo.image = url;
+      el("prMsg").textContent = "";
+      renderPromoImg();
+    }).catch(function (e) { el("prMsg").textContent = "No se pudo subir: " + (e.message || e); });
+    this.value = "";
+  });
+  el("prSave").addEventListener("click", function () {
+    var msg = el("prMsg");
+    msg.className = "msg"; msg.textContent = "Guardando…";
+    var data = {
+      active: el("prActive").checked,
+      title: el("prTitle").value.trim(),
+      text: el("prText").value.trim(),
+      cta: el("prCta").value.trim(),
+      image: promo.image || null
+    };
+    sb.from("lym_settings").upsert({
+      key: "promo", value: JSON.stringify(data), updated_at: new Date().toISOString()
+    }).then(function (res) {
+      if (res.error) { msg.className = "msg msg--err"; msg.textContent = "No se pudo guardar: " + res.error.message; return; }
+      msg.className = "msg msg--ok";
+      msg.textContent = data.active ? "Banner guardado ✓" : "Banner guardado: no se mostrará en la web ✓";
       loadAll();
     });
   });
