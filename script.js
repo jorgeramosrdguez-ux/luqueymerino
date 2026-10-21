@@ -207,11 +207,30 @@
            (isPhoto ? "width:100%;height:100%;" : "");
   }
 
+  // Precio más bajo entre los colores/medidas de un producto.
+  function minVariantPrice(id) {
+    var vars = variantsByProduct[id] || [];
+    var nums = vars.map(function (x) {
+      var n = parseFloat(String(x.price || "").replace(/[^0-9,.]/g, "").replace(/\./g, "").replace(",", "."));
+      return isNaN(n) ? null : { n: n, t: x.price };
+    }).filter(Boolean).sort(function (a, b) { return a.n - b.n; });
+    return nums.length ? nums[0].t : "";
+  }
+
   function productCard(p) {
     var cats = window.LYM_CATEGORIES || {};
     var catLabel = cats[p.category] || p.category || "";
     var isOffer = !!p.is_offer;
     var price = (p.price || "").trim();
+
+    // Si el precio general está vacío pero hay colores o medidas con precio,
+    // se enseña el más bajo como "Desde…" en lugar de dejar la tarjeta sin precio.
+    var desde = false;
+    if (!price) {
+      price = minVariantPrice(p.id);
+      desde = !!price;
+    }
+
     var ref = /presupuesto/i.test(price) ? "a medida" : "precio orientativo";
     var img = imgSrc(p.image);
 
@@ -223,7 +242,7 @@
     if (isOffer && p.old_price) {
       priceHtml = '<span class="product__old">' + escapeHtml(p.old_price) + '</span> ' + escapeHtml(price);
     } else {
-      priceHtml = escapeHtml(price);
+      priceHtml = (desde ? "Desde " : "") + escapeHtml(price);
     }
 
     var art = document.createElement("article");
@@ -243,7 +262,7 @@
         '<h3>' + escapeHtml(p.name) + '</h3>' +
         '<div class="product__foot">' +
           '<span class="product__price">' + priceHtml + '</span>' +
-          '<span class="product__ref">' + ref + '</span>' +
+          (price ? '<span class="product__ref">' + ref + '</span>' : '') +
         '</div>' +
       '</div>';
     return art;
@@ -379,11 +398,8 @@
 
     // Sin elegir nada todavía: se muestra el precio más bajo como "Desde".
     if (vars.length && !pmState.color && !pmState.size) {
-      var nums = vars.map(function (x) {
-        var n = parseFloat(String(x.price || "").replace(/[^0-9,.]/g, "").replace(/\./g, "").replace(",", "."));
-        return isNaN(n) ? null : { n: n, t: x.price };
-      }).filter(Boolean).sort(function (a, b) { return a.n - b.n; });
-      if (nums.length) { price = nums[0].t; html = 'Desde ' + escapeHtml(price); }
+      var min = minVariantPrice(p.id);
+      if (min) { price = min; html = 'Desde ' + escapeHtml(price); }
     }
 
     if (!v && p.is_offer && p.old_price) {
