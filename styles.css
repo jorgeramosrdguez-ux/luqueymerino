@@ -290,10 +290,11 @@ body.menu-open { overflow: hidden; }
 .cat:hover .cat__img img.cat-photo { transform: scale(calc(var(--z, 1) * 1.06)); }
 .cat:hover .cat__img img { transform: scale(1.06); }
 .cat--lg .cat__img { height: 250px; }
-.cat__body { padding: 1.4rem 1.5rem 1.6rem; }
+.cat__body { padding: 1.4rem 1.5rem 1.6rem; flex: 1; display: flex; flex-direction: column; }
 .cat__body h3 { font-size: 1.6rem; margin-bottom: .35rem; }
 .cat__body p { margin: 0 0 .8rem; color: var(--ink-soft); font-size: 1.05rem; }
-.cat__link { color: var(--clay-dark); font-weight: 600; font-size: .9rem; letter-spacing: .01em; transition: letter-spacing .25s var(--ease); }
+/* El enlace queda abajo aunque la categoría no tenga texto descriptivo */
+.cat__link { margin-top: auto; color: var(--clay-dark); font-weight: 600; font-size: .9rem; letter-spacing: .01em; transition: letter-spacing .25s var(--ease); }
 .cat:hover .cat__link { letter-spacing: .06em; }
 
 /* ---------- Productos destacados (demo) ---------- */
@@ -312,7 +313,9 @@ body.menu-open { overflow: hidden; }
 .product__cat { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--clay-dark); }
 .product__body h3 { font-size: 1.4rem; margin: .35rem 0 .3rem; }
 .product__body p { margin: 0 0 1rem; color: var(--ink-soft); font-size: .98rem; flex: 1; }
-.product__foot { display: flex; align-items: center; justify-content: space-between; gap: .8rem; border-top: 1px solid var(--line); padding-top: .9rem; }
+/* El precio se queda siempre pegado abajo, así queda a la misma altura en
+   todas las tarjetas aunque los nombres ocupen una o dos líneas */
+.product__foot { display: flex; align-items: center; justify-content: space-between; gap: .8rem; margin-top: auto; border-top: 1px solid var(--line); padding-top: .9rem; }
 .product__price { font-family: var(--serif); font-size: 1.6rem; font-weight: 600; color: var(--sage-dark); }
 .product__ref { font-size: .74rem; color: var(--ink-soft); font-style: italic; }
 .product.is-hidden { display: none; }
