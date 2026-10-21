@@ -798,3 +798,38 @@ body.pmodal-open { overflow: hidden; }
   .zoomer__nav--next { right: 6px; }
   .zoomer__bar { bottom: 14px; }
 }
+
+/* =========================================================
+   Ajustes para el móvil: zonas de toque cómodas con el dedo
+   (muchos clientes entran desde el teléfono)
+   ========================================================= */
+@media (max-width: 720px) {
+  /* Puntos del carrusel: el punto se ve igual, pero la zona
+     que responde al dedo es mucho mayor */
+  .carousel__dots { gap: .15rem; margin-top: .6rem; }
+  .carousel__dots button {
+    width: 34px; height: 34px; background: transparent; position: relative;
+    transform: none;
+  }
+  .carousel__dots button::after {
+    content: ""; position: absolute; top: 50%; left: 50%;
+    width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%;
+    background: var(--line); transition: background .25s var(--ease), transform .25s var(--ease);
+  }
+  .carousel__dots button.is-active { background: transparent; transform: none; }
+  .carousel__dots button.is-active::after { background: var(--sage); transform: scale(1.3); }
+
+  /* Teléfono de la barra superior: más alto para pulsarlo bien */
+  .topbar__inner { padding: .35rem 18px; }
+  .topbar__phone { display: inline-flex; align-items: center; min-height: 40px; }
+
+  /* Filtros del catálogo */
+  .filter { min-height: 40px; }
+
+  /* Enlaces del pie */
+  .footer__col a, .footer__legal { display: inline-flex; align-items: center; min-height: 38px; }
+  .footer__col a { width: 100%; }
+
+  /* Teléfonos y correos: cómodos de pulsar en cualquier sección */
+  a[href^="tel:"], a[href^="mailto:"] { display: inline-flex; align-items: center; min-height: 40px; }
+}

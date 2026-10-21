@@ -140,7 +140,9 @@
       } else {
         okCat = item.getAttribute("data-cat") === activeFilter;
       }
-      var okSearch = q === "" || item.textContent.toLowerCase().indexOf(q) >= 0;
+      // La descripción ya no se ve en la tarjeta, pero se sigue buscando en ella
+      var hay = (item.textContent + " " + (item.getAttribute("data-desc") || "")).toLowerCase();
+      var okSearch = q === "" || hay.indexOf(q) >= 0;
       var show = okCat && okSearch;
       item.classList.toggle("is-hidden", !show);
       if (show) anyVisible = true;
@@ -229,6 +231,9 @@
     art.setAttribute("data-cat", p.category || "");
     art.setAttribute("data-offer", isOffer ? "1" : "0");
     if (p.id != null) art.setAttribute("data-id", p.id);
+    // La descripción no se muestra en el catálogo (queda para la ficha),
+    // pero se guarda aquí para que el buscador siga encontrándola.
+    art.setAttribute("data-desc", p.description || "");
     art.innerHTML =
       '<div class="product__img">' + badge +
         '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(p.name) + '" loading="lazy" style="' + frameStyle(p) + '" />' +
@@ -236,7 +241,6 @@
       '<div class="product__body">' +
         '<span class="product__cat">' + escapeHtml(catLabel) + '</span>' +
         '<h3>' + escapeHtml(p.name) + '</h3>' +
-        '<p>' + escapeHtml(p.description || "") + '</p>' +
         '<div class="product__foot">' +
           '<span class="product__price">' + priceHtml + '</span>' +
           '<span class="product__ref">' + ref + '</span>' +
