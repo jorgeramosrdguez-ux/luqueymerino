@@ -207,14 +207,16 @@
            (isPhoto ? "width:100%;height:100%;" : "");
   }
 
-  // Precio más bajo entre los colores/medidas de un producto.
-  function minVariantPrice(id) {
-    var vars = variantsByProduct[id] || [];
-    var nums = vars.map(function (x) {
+  // Precio más bajo de una lista de variantes.
+  function minPriceOf(list) {
+    var nums = (list || []).map(function (x) {
       var n = parseFloat(String(x.price || "").replace(/[^0-9,.]/g, "").replace(/\./g, "").replace(",", "."));
       return isNaN(n) ? null : { n: n, t: x.price };
     }).filter(Boolean).sort(function (a, b) { return a.n - b.n; });
     return nums.length ? nums[0].t : "";
+  }
+  function minVariantPrice(id) {
+    return minPriceOf(variantsByProduct[id] || []);
   }
 
   function productCard(p) {
@@ -341,11 +343,15 @@
   }
 
   // Busca la variante que coincide con el color y la medida elegidos.
-  function findVariant(vars) {
+  // Variantes que encajan con lo que el cliente lleva elegido.
+  function matchingVariants(vars) {
     return vars.filter(function (v) {
       return (!pmState.color || (v.color || "") === pmState.color) &&
              (!pmState.size || (v.size || "") === pmState.size);
-    })[0] || null;
+    });
+  }
+  function findVariant(vars) {
+    return matchingVariants(vars)[0] || null;
   }
 
   function renderOptions() {
@@ -392,23 +398,34 @@
   function updatePrice() {
     var p = pmState.product;
     var vars = variantsByProduct[p.id] || [];
-    var v = vars.length ? findVariant(vars) : null;
-    var price = (v && v.price) ? v.price : (p.price || "");
-    var html = escapeHtml(price);
+    var price = "", html = "";
 
-    // Sin elegir nada todavía: se muestra el precio más bajo como "Desde".
-    if (vars.length && !pmState.color && !pmState.size) {
-      var min = minVariantPrice(p.id);
-      if (min) { price = min; html = 'Desde ' + escapeHtml(price); }
+    if (vars.length) {
+      // Mientras queden varias opciones posibles con precios distintos se
+      // sigue enseñando "Desde…"; en cuanto el precio es único, se concreta.
+      var m = matchingVariants(vars);
+      if (!m.length) m = vars;
+      var distintos = uniq(m.map(function (v) { return (v.price || "").trim(); }));
+      if (distintos.length === 1) {
+        price = distintos[0];
+        html = escapeHtml(price);
+      } else {
+        price = minPriceOf(m);
+        html = price ? "Desde " + escapeHtml(price) : "";
+      }
+      // La foto se cambia a la de la primera opción que encaje y tenga foto
+      var conFoto = m.filter(function (v) { return v.image; })[0];
+      if (conFoto) showProductImage(conFoto.image);
+    } else {
+      price = (p.price || "").trim();
+      html = escapeHtml(price);
+      if (p.is_offer && p.old_price) {
+        html = '<span class="product__old">' + escapeHtml(p.old_price) + '</span> ' + escapeHtml(price);
+      }
     }
 
-    if (!v && p.is_offer && p.old_price) {
-      html = '<span class="product__old">' + escapeHtml(p.old_price) + '</span> ' + escapeHtml(price);
-    }
     document.getElementById("pmPrice").innerHTML = html;
 
-    // Si la combinación elegida tiene su propia foto, se muestra.
-    if (v && v.image) showProductImage(v.image);
     document.getElementById("pmNote").textContent = /presupuesto/i.test(price)
       ? "Presupuesto a medida. Pásate por la tienda o pregúntanos."
       : "Precio orientativo. Pásate por la tienda o pregúntanos.";
