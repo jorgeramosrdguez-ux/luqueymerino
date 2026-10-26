@@ -13,7 +13,7 @@
   ],
   "redirects": [
     { "source": "/((?!img/).*(?:textil|ropa-de-cama|sabana|toalla|albornoz|mantel|manta|edredon|nordic|colcha|cojin|plaid|alfombra|boutis).*)", "destination": "/?cat=textil", "statusCode": 301 },
-    { "source": "/((?!img/).*(?:cortina|estor|panel|japones|visillo).*)", "destination": "/?cat=cortina", "statusCode": 301 },
+    { "source": "/((?!img/).*(?:cortina|estor|panel|japones|visillo).*)", "destination": "/?ir=a-medida", "statusCode": 301 },
     { "source": "/((?!img/).*(?:colchon|protector).*)", "destination": "/?cat=colchon", "statusCode": 301 },
     { "source": "/((?!img/).*(?:infantil|cuna).*)", "destination": "/?cat=infantil", "statusCode": 301 },
     { "source": "/((?!img/).*bebe.*)", "destination": "/?cat=bebe", "statusCode": 301 },
