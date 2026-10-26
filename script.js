@@ -233,7 +233,8 @@
       desde = !!price;
     }
 
-    var ref = /presupuesto/i.test(price) ? "a medida" : "precio orientativo";
+    // Solo los productos a presupuesto llevan etiqueta bajo el precio
+    var ref = /presupuesto/i.test(price) ? "a medida" : "";
     var img = imgSrc(p.image);
 
     var badge = "";
@@ -264,7 +265,7 @@
         '<h3>' + escapeHtml(p.name) + '</h3>' +
         '<div class="product__foot">' +
           '<span class="product__price">' + priceHtml + '</span>' +
-          (price ? '<span class="product__ref">' + ref + '</span>' : '') +
+          (ref ? '<span class="product__ref">' + ref + '</span>' : '') +
         '</div>' +
       '</div>';
     return art;
@@ -428,7 +429,7 @@
 
     document.getElementById("pmNote").textContent = /presupuesto/i.test(price)
       ? "Presupuesto a medida. Pásate por la tienda o pregúntanos."
-      : "Precio orientativo. Pásate por la tienda o pregúntanos.";
+      : "¿Tienes dudas? Pásate por la tienda o pregúntanos.";
 
     // Mensaje de WhatsApp con lo que ha elegido
     var txt = "Hola Luque & Merino 👋\nMe interesa: " + p.name;
