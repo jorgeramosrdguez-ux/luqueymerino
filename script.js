@@ -750,9 +750,19 @@
     return m[slug] || "cama.svg";
   }
 
+  // Mensaje en el hueco del catálogo cuando no hay productos que enseñar.
+  function catalogMessage(html) {
+    if (!catalogEl || catalogEl.querySelector(".product")) return;
+    catalogEl.innerHTML = '<p class="catalog-msg">' + html + '</p>';
+  }
+  function catalogFailed() {
+    catalogMessage('No hemos podido cargar el catálogo en este momento. Vuelve a intentarlo en un rato o llámanos al <a href="tel:+34916104731">91 610 47 31</a>.');
+    applyDeepLink();
+  }
+
   function loadCatalog() {
     var cfg = window.LYM_SUPABASE;
-    if (!catalogEl || !cfg || !window.supabase) { applyDeepLink(); return; }
+    if (!catalogEl || !cfg || !window.supabase) { catalogFailed(); return; }
     try {
       var sb = window.supabase.createClient(cfg.url, cfg.key);
 
@@ -768,9 +778,13 @@
       Promise.all([pCats, pProd, pVars]).then(function (results) {
         var catMeta = (results[0] && results[0].data) || [];
         var prod = results[1] || {};
-        if (prod.error) { console.warn("Catálogo: usando demo (", prod.error.message, ")"); applyDeepLink(); return; }
+        if (prod.error) { console.warn("Catálogo no disponible (", prod.error.message, ")"); catalogFailed(); return; }
         var rows = prod.data || [];
-        if (!rows.length) { applyDeepLink(); return; } // base de datos vacía → se queda la demo
+        if (!rows.length) {
+          catalogMessage("Muy pronto encontrarás aquí nuestros productos. Mientras tanto, pásate por la tienda o pregúntanos.");
+          applyDeepLink();
+          return;
+        }
 
         // Variantes (color / medida / precio) agrupadas por producto
         variantsByProduct = {};
@@ -789,10 +803,10 @@
         var featured = rows.filter(function (p) { return p.is_featured; });
         renderHero(featured);
         applyDeepLink();
-      }).catch(function (e) { console.warn("Catálogo: usando demo (", e && e.message, ")"); applyDeepLink(); });
+      }).catch(function (e) { console.warn("Catálogo no disponible (", e && e.message, ")"); catalogFailed(); });
     } catch (e) {
-      console.warn("Catálogo: Supabase no disponible, usando demo.");
-      applyDeepLink();
+      console.warn("Catálogo: Supabase no disponible.");
+      catalogFailed();
     }
   }
   /* ---- Enlaces directos: ?cat=… (catálogo filtrado) o ?ir=… (sección) ----
@@ -832,8 +846,8 @@
   }
 
   loadCatalog();
-  // Por si la base de datos tarda o no responde: se aplica con la demo
-  // y se vuelve a aplicar cuando lleguen los productos reales.
+  // Por si la base de datos tarda en responder: se lleva ya a la sección
+  // y el filtro se vuelve a aplicar cuando lleguen los productos.
   setTimeout(applyDeepLink, 2500);
 
   /* ---- Formulario → WhatsApp ---- */

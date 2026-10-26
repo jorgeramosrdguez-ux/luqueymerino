@@ -841,3 +841,10 @@ body.pmodal-open { overflow: hidden; }
   /* Teléfonos y correos: cómodos de pulsar en cualquier sección */
   a[href^="tel:"], a[href^="mailto:"] { display: inline-flex; align-items: center; min-height: 40px; }
 }
+
+/* Mensaje en el hueco del catálogo (cargando, o si no se pudo cargar) */
+.catalog-msg {
+  grid-column: 1 / -1; margin: 0; padding: 2.4rem 1rem;
+  text-align: center; color: var(--ink-soft); font-size: 1.02rem;
+}
+.catalog-msg a { color: var(--sage-dark); font-weight: 700; text-decoration: underline; }
