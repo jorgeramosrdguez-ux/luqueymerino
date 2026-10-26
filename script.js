@@ -752,7 +752,7 @@
 
   function loadCatalog() {
     var cfg = window.LYM_SUPABASE;
-    if (!catalogEl || !cfg || !window.supabase) return;
+    if (!catalogEl || !cfg || !window.supabase) { applyDeepLink(); return; }
     try {
       var sb = window.supabase.createClient(cfg.url, cfg.key);
 
@@ -768,9 +768,9 @@
       Promise.all([pCats, pProd, pVars]).then(function (results) {
         var catMeta = (results[0] && results[0].data) || [];
         var prod = results[1] || {};
-        if (prod.error) { console.warn("Catálogo: usando demo (", prod.error.message, ")"); return; }
+        if (prod.error) { console.warn("Catálogo: usando demo (", prod.error.message, ")"); applyDeepLink(); return; }
         var rows = prod.data || [];
-        if (!rows.length) return; // base de datos vacía → se queda la demo
+        if (!rows.length) { applyDeepLink(); return; } // base de datos vacía → se queda la demo
 
         // Variantes (color / medida / precio) agrupadas por producto
         variantsByProduct = {};
@@ -788,12 +788,53 @@
 
         var featured = rows.filter(function (p) { return p.is_featured; });
         renderHero(featured);
-      }).catch(function (e) { console.warn("Catálogo: usando demo (", e && e.message, ")"); });
+        applyDeepLink();
+      }).catch(function (e) { console.warn("Catálogo: usando demo (", e && e.message, ")"); applyDeepLink(); });
     } catch (e) {
       console.warn("Catálogo: Supabase no disponible, usando demo.");
+      applyDeepLink();
     }
   }
+  /* ---- Enlaces directos: ?cat=… (catálogo filtrado) o ?ir=… (sección) ----
+     Los usan las redirecciones de las direcciones de la web antigua que
+     Google aún muestra (ver vercel.json). */
+  var deepLink = { cat: "", ir: "" }, deepLinkScrolled = false;
+  try {
+    var qs = new URLSearchParams(location.search);
+    deepLink.cat = (qs.get("cat") || "").toLowerCase();
+    deepLink.ir = (qs.get("ir") || "").toLowerCase();
+  } catch (e) { /* navegador muy antiguo: se queda en la portada */ }
+
+  function plain(s) {
+    return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  }
+
+  // Se llama tras cada pintado del catálogo, porque al cargar los productos
+  // de la base de datos los filtros se rehacen y vuelven a "Todo".
+  function applyDeepLink() {
+    if (!deepLink.cat && !deepLink.ir) return;
+    if (deepLink.cat) {
+      // La palabra se busca en el identificador o el nombre de cada filtro,
+      // así sirve aunque la tienda renombre sus categorías.
+      var want = plain(deepLink.cat), match = null;
+      document.querySelectorAll(".cat-filters .filter").forEach(function (b) {
+        var f = b.getAttribute("data-filter");
+        if (!match && f !== "all" && (plain(f).indexOf(want) >= 0 || plain(b.textContent).indexOf(want) >= 0)) match = f;
+      });
+      if (match) setFilter(match);
+    }
+    if (deepLinkScrolled) return;
+    deepLinkScrolled = true;
+    var target = document.getElementById(deepLink.ir || "catalogo");
+    if (target) setTimeout(function () { target.scrollIntoView({ behavior: "smooth", block: "start" }); }, 120);
+    // Deja la dirección limpia en la barra del navegador
+    if (history.replaceState) history.replaceState(null, "", location.pathname + (target ? "#" + target.id : ""));
+  }
+
   loadCatalog();
+  // Por si la base de datos tarda o no responde: se aplica con la demo
+  // y se vuelve a aplicar cuando lleguen los productos reales.
+  setTimeout(applyDeepLink, 2500);
 
   /* ---- Formulario → WhatsApp ---- */
   var form = document.getElementById("contactForm");
