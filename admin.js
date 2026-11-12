@@ -578,6 +578,20 @@
   }
 
   /* ============ GESTIÓN DE CATEGORÍAS ============ */
+  // Fotos extra de cada categoría (las que van pasando en su tarjeta).
+  // Se guardan en la tabla de ajustes con la clave "catgal:<categoría>",
+  // así no hace falta cambiar la estructura de la base de datos.
+  function catGallery(slug) {
+    var raw = state.settings["catgal:" + slug];
+    if (!raw) return [];
+    try { var a = JSON.parse(raw); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  function saveCatGallery(slug, list) {
+    var key = "catgal:" + slug;
+    if (!list.length) return sb.from("lym_settings").delete().eq("key", key);
+    return sb.from("lym_settings").upsert({ key: key, value: JSON.stringify(list), updated_at: new Date().toISOString() });
+  }
+
   function renderCatList() {
     var wrap = el("catlist");
     if (!wrap) return;
@@ -600,8 +614,22 @@
           '<div class="framer__row"><span>↕️ Vertical</span><input type="range" min="0" max="100" value="' + (c.img_y == null ? 50 : c.img_y) + '" data-cy="' + esc(c.slug) + '" /></div>' +
           '<button class="btn btn--primary btn--sm" style="width:100%;justify-content:center;margin-top:8px" data-csave="' + esc(c.slug) + '">Guardar encuadre</button>' +
         '</div>' : '') +
+        (function () {
+          var gal = catGallery(c.slug);
+          return '<div class="cgal">' +
+            '<div class="cgal__head">Más fotos <span>· van pasando solas en la tarjeta de la web</span></div>' +
+            '<div class="gallery">' + (gal.length
+              ? gal.map(function (u, k) {
+                  return '<div class="gitem"><img src="' + esc(imgSrc(u)) + '" alt="" />' +
+                         '<button type="button" data-cgdel="' + esc(c.slug) + '" data-k="' + k + '" title="Quitar">×</button></div>';
+                }).join("")
+              : '<span class="gempty">Sin fotos extra: en la web se van pasando las fotos de los productos de esta categoría.</span>') +
+            '</div>' +
+            '<label class="filebtn" style="margin-top:8px">➕ Añadir fotos<input type="file" accept="image/*" multiple data-cgal="' + esc(c.slug) + '" /></label>' +
+          '</div>';
+        })() +
         '<div style="flex:1 0 100%;display:flex;gap:6px;flex-wrap:wrap">' +
-          '<label class="filebtn" style="flex:1;min-width:130px">📷 Foto<input type="file" accept="image/*" data-cimg="' + esc(c.slug) + '" /></label>' +
+          '<label class="filebtn" style="flex:1;min-width:130px">📷 Foto principal<input type="file" accept="image/*" data-cimg="' + esc(c.slug) + '" /></label>' +
           '<button class="btn btn--ghost btn--sm" data-cedit="' + esc(c.slug) + '">✎ Nombre</button>' +
           '<button class="btn btn--ghost btn--sm" data-cdesc="' + esc(c.slug) + '">✎ Texto</button>' +
           '<button class="btn btn--ghost btn--sm" data-up="' + esc(c.slug) + '"' + (i === 0 ? " disabled" : "") + '>↑</button>' +
@@ -625,6 +653,35 @@
           if (res && res.error) throw res.error;
           loadAll();
         }).catch(function (e) { msg.textContent = "No se pudo subir: " + (e.message || e); });
+      });
+    });
+
+    // Más fotos: añadir (varias a la vez) y quitar. Se guarda al momento.
+    wrap.querySelectorAll("[data-cgal]").forEach(function (inp) {
+      inp.addEventListener("change", function () {
+        var slug = inp.getAttribute("data-cgal");
+        var files = Array.prototype.slice.call(inp.files || []);
+        if (!files.length) return;
+        var msg = wrap.querySelector('[data-cmsg="' + slug + '"]');
+        msg.textContent = "Subiendo " + files.length + " foto" + (files.length === 1 ? "" : "s") + "…";
+        Promise.all(files.map(uploadImage)).then(function (urls) {
+          return saveCatGallery(slug, catGallery(slug).concat(urls));
+        }).then(function (res) {
+          if (res && res.error) throw res.error;
+          loadAll();
+        }).catch(function (e) { msg.textContent = "No se pudo subir: " + (e.message || e); });
+      });
+    });
+    wrap.querySelectorAll("[data-cgdel]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!confirm("¿Quitar esta foto de la categoría?")) return;
+        var slug = b.getAttribute("data-cgdel");
+        var list = catGallery(slug);
+        list.splice(parseInt(b.getAttribute("data-k"), 10), 1);
+        saveCatGallery(slug, list).then(function (res) {
+          if (res && res.error) { alert("No se pudo quitar: " + res.error.message); return; }
+          loadAll();
+        });
       });
     });
 
@@ -718,7 +775,8 @@
     if (!confirm('¿Eliminar la categoría "' + c.label + '"?')) return;
     sb.from(CATS).delete().eq("slug", slug).then(function (res) {
       if (res.error) { alert("No se pudo eliminar: " + res.error.message); return; }
-      loadAll();
+      // Sus fotos extra ya no sirven
+      return saveCatGallery(slug, []).then(loadAll, loadAll);
     });
   }
 

@@ -711,8 +711,44 @@
     });
   }
 
-  /* ---- Tarjetas de categoría (con la foto que elija la tienda) ---- */
-  function renderCategoryCards(catMeta) {
+  /* ---- Tarjetas de categoría: varias fotos que van pasando solas ---- */
+  // Fotos de una categoría: la principal, las "Más fotos" del panel y, si no
+  // hay fotos extra, las fotos reales de sus productos.
+  function categoryPhotos(c, galleries, rows) {
+    var list = [];
+    function add(u) { if (u && list.indexOf(u) < 0) list.push(u); }
+    if (c.image) add(c.image);
+    var extra = galleries[c.slug] || [];
+    extra.forEach(add);
+    if (!extra.length) {
+      (rows || []).forEach(function (p) {
+        if (list.length < 8 && p.category === c.slug && /^https?:\/\//.test(p.image || "")) add(p.image);
+      });
+    }
+    return list;
+  }
+
+  var catTimers = [];
+  function startCategoryRotation(wrap) {
+    catTimers.forEach(function (t) { clearTimeout(t); clearInterval(t); });
+    catTimers = [];
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    wrap.querySelectorAll(".cat__img").forEach(function (box, n) {
+      var imgs = box.querySelectorAll(".cat-photo");
+      if (imgs.length < 2) return;
+      var i = 0;
+      // Cada tarjeta empieza con un pequeño desfase para que no cambien todas a la vez
+      catTimers.push(setTimeout(function () {
+        catTimers.push(setInterval(function () {
+          imgs[i].classList.remove("is-on");
+          i = (i + 1) % imgs.length;
+          imgs[i].classList.add("is-on");
+        }, 4000));
+      }, n * 900));
+    });
+  }
+
+  function renderCategoryCards(catMeta, galleries, rows) {
     var wrap = document.querySelector(".cats");
     if (!wrap || !catMeta.length) return;
     wrap.innerHTML = "";
@@ -721,17 +757,24 @@
       a.className = "cat reveal is-visible";
       a.href = "#catalogo";
       a.setAttribute("data-cat-filter", c.slug);
-      var cls = "", style = "";
-      if (c.image) {
-        cls = " class=\"cat-photo\"";
-        style = ' style="object-position:' +
-          (c.img_x == null ? 50 : c.img_x) + "% " + (c.img_y == null ? 50 : c.img_y) +
-          '%;--z:' + ((c.img_zoom || 100) / 100) + '"';
+      var photos = categoryPhotos(c, galleries || {}, rows);
+      var media;
+      if (photos.length) {
+        media = photos.map(function (u, k) {
+          // El encuadre del panel se aplica a la foto principal
+          var style = (u === c.image)
+            ? ' style="object-position:' + (c.img_x == null ? 50 : c.img_x) + "% " + (c.img_y == null ? 50 : c.img_y) +
+              '%;--z:' + ((c.img_zoom || 100) / 100) + '"'
+            : "";
+          return '<img class="cat-photo' + (k === 0 ? " is-on" : "") + '" src="' + escapeHtml(imgSrc(u)) +
+                 '" alt="' + (k === 0 ? escapeHtml(c.label) : "") + '" loading="lazy"' + style + ' />';
+        }).join("");
+      } else {
+        media = '<img src="' + escapeHtml(imgSrc(catFallbackImg(c.slug))) + '" alt="' + escapeHtml(c.label) + '" loading="lazy" />';
       }
       var desc = (c.description || "").trim();
       a.innerHTML =
-        '<div class="cat__img"><img' + cls + ' src="' + escapeHtml(imgSrc(c.image || catFallbackImg(c.slug))) +
-          '" alt="' + escapeHtml(c.label) + '" loading="lazy"' + style + ' /></div>' +
+        '<div class="cat__img">' + media + '</div>' +
         '<div class="cat__body">' +
           '<h3>' + escapeHtml(c.label) + '</h3>' +
           (desc ? '<p>' + escapeHtml(desc) + '</p>' : '') +
@@ -740,6 +783,7 @@
       a.addEventListener("click", function () { setFilter(c.slug); });
       wrap.appendChild(a);
     });
+    startCategoryRotation(wrap);
   }
 
   // Ilustración de reserva mientras la tienda no suba su propia foto.
@@ -767,16 +811,19 @@
     try {
       var sb = window.supabase.createClient(cfg.url, cfg.key);
 
-      // Imágenes personalizadas de la web (independiente del catálogo)
-      sb.from("lym_settings").select("*").then(function (res) {
+      // Ajustes de la web (imágenes, banner y fotos extra de las categorías).
+      // Se convierte en promesa una sola vez para reutilizar la misma consulta.
+      var pSets = Promise.resolve(sb.from("lym_settings").select("*"))
+        .catch(function () { return { data: [] }; });
+      pSets.then(function (res) {
         if (!res.error) applySiteImages(res.data);
-      }).catch(function () { /* si falla, se queda el diseño por defecto */ });
+      });
       // Categorías (para orden y nombres) y productos activos, en paralelo.
       var pCats = sb.from("lym_categories").select("*").order("sort_order", { ascending: true });
       var pProd = sb.from(cfg.table).select("*").eq("active", true).order("sort_order", { ascending: true });
       var pVars = sb.from("lym_variants").select("*").order("sort_order", { ascending: true });
 
-      Promise.all([pCats, pProd, pVars]).then(function (results) {
+      Promise.all([pCats, pProd, pVars, pSets]).then(function (results) {
         var catMeta = (results[0] && results[0].data) || [];
         var prod = results[1] || {};
         if (prod.error) { console.warn("Catálogo no disponible (", prod.error.message, ")"); catalogFailed(); return; }
@@ -795,7 +842,14 @@
         productsById = {};
         rows.forEach(function (p) { productsById[p.id] = p; });
 
-        renderCategoryCards(catMeta);
+        // Fotos extra de cada categoría ("catgal:<categoría>" en los ajustes)
+        var galleries = {};
+        (((results[3] && results[3].data) || [])).forEach(function (s) {
+          if (s.key && s.key.indexOf("catgal:") === 0) {
+            try { galleries[s.key.slice(7)] = JSON.parse(s.value) || []; } catch (e) { /* se ignora */ }
+          }
+        });
+        renderCategoryCards(catMeta, galleries, rows);
         renderFilters(rows, catMeta);
         catalogEl.innerHTML = "";
         rows.forEach(function (p) { catalogEl.appendChild(productCard(p)); });
