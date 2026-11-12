@@ -567,6 +567,26 @@ body.menu-open { overflow: hidden; }
   animation: waPulse 2.6s infinite;
 }
 .wa-float:hover { transform: scale(1.08); }
+/* El número solo se ve en pantallas grandes: en el ordenador mucha gente
+   no tiene WhatsApp y necesita apuntarlo para escribir desde el móvil */
+.wa-float__label { display: none; }
+@media (min-width: 900px) {
+  .wa-float {
+    width: auto; height: 58px; border-radius: 999px; padding: 0 22px 0 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .wa-float:hover { transform: translateY(-2px); }
+  .wa-float__label {
+    display: flex; flex-direction: column; line-height: 1.15; order: 2;
+    font-size: .74rem; font-weight: 600; letter-spacing: .02em; opacity: .95;
+  }
+  .wa-float__label strong { font-size: 1.05rem; font-weight: 800; letter-spacing: .03em; opacity: 1; }
+}
+
+/* Número de WhatsApp y de la tienda bajo el botón de la ficha */
+.pmodal__alt { margin: .7rem 0 0; font-size: .86rem; color: var(--ink-soft); }
+.pmodal__alt strong { color: var(--ink); }
+.pmodal__alt a { color: var(--sage-dark); font-weight: 700; }
 @keyframes waPulse { 0% { box-shadow: 0 10px 26px rgba(37,211,102,.45), 0 0 0 0 rgba(37,211,102,.4); } 70% { box-shadow: 0 10px 26px rgba(37,211,102,.45), 0 0 0 16px rgba(37,211,102,0); } 100% { box-shadow: 0 10px 26px rgba(37,211,102,.45), 0 0 0 0 rgba(37,211,102,0); } }
 
 /* ---------- Bordado: qué bordamos (chips) ---------- */
@@ -648,6 +668,8 @@ body.menu-open { overflow: hidden; }
   .topbar__inner > :nth-child(1),
   .topbar__inner > :nth-child(2),
   .topbar__inner > :nth-child(3) { display: none; }
+  /* En el móvil ya está el botón flotante de WhatsApp */
+  .topbar .topbar__sep--wa, .topbar .topbar__wa { display: none; }
   .nav__inner { padding: .6rem 20px; }
   .logo__script { font-size: 1.7rem; }
   .logo__img { max-height: 38px; }
