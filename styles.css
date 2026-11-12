@@ -217,7 +217,7 @@ body.menu-open { overflow: hidden; }
 }
 .slide {
   position: absolute; inset: 0; margin: 0; display: grid; place-items: center;
-  opacity: 0; transform: scale(1.02); transition: opacity .8s var(--ease), transform .8s var(--ease);
+  opacity: 0; transform: scale(1.02); transition: opacity .6s var(--ease), transform .6s var(--ease);
   background: linear-gradient(160deg, #fbf5f6, #f3e7ea);
   /* Las diapositivas ocultas siguen apiladas encima: sin esto, el clic
      lo recibiría siempre la última en lugar de la que se está viendo */
@@ -873,3 +873,62 @@ body.pmodal-open { overflow: hidden; }
   text-align: center; color: var(--ink-soft); font-size: 1.02rem;
 }
 .catalog-msg a { color: var(--sage-dark); font-weight: 700; text-decoration: underline; }
+
+/* =========================================================
+   Animaciones: entrada de la portada y efectos al hacer scroll
+   (se desactivan si el visitante pide "reducir movimiento")
+   ========================================================= */
+
+/* Retraso escalonado para que las tarjetas entren una detrás de otra */
+.reveal.is-visible { transition-delay: var(--d, 0s); }
+/* En bloques de dos columnas, cada parte entra desde su lado */
+.reveal--left  { transform: translateX(-56px); }
+.reveal--right { transform: translateX(56px); }
+@media (max-width: 720px) {
+  .reveal--left  { transform: translateX(-26px); }
+  .reveal--right { transform: translateX(26px); }
+}
+.reveal--left.is-visible, .reveal--right.is-visible { transform: none; }
+
+/* Las fotos grandes se mueven algo más despacio que el texto (profundidad) */
+.feature__media, .about__media { translate: 0 var(--py, 0px); will-change: translate; }
+
+/* Barra fina que se llena según lo que se ha leído de la página */
+.scroll-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 55; pointer-events: none;
+  background: linear-gradient(90deg, var(--sage), var(--gold));
+  transform-origin: 0 50%; transform: scaleX(var(--sp, 0));
+}
+
+/* ---- Entrada de la portada ----
+   Se usa "backwards" para que, al terminar, los botones vuelvan a
+   responder a su efecto normal al pasar el ratón. */
+@keyframes heroUp   { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes heroWord { from { opacity: 0; transform: translateY(.45em); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes heroShow { from { opacity: 0; transform: translateX(46px) scale(.96); } to { opacity: 1; transform: none; } }
+.hero--intro .eyebrow { animation: heroUp .7s var(--ease) .05s backwards; }
+.hero--intro .hw { display: inline-block; animation: heroWord .8s var(--ease) backwards; animation-delay: calc(.18s + var(--i, 0) * .07s); }
+.hero--intro .hero__lead { animation: heroUp .8s var(--ease) .75s backwards; }
+.hero--intro .hero__actions > * { animation: heroUp .7s var(--ease) backwards; }
+.hero--intro .hero__actions > :nth-child(1) { animation-delay: .95s; }
+.hero--intro .hero__actions > :nth-child(2) { animation-delay: 1.05s; }
+.hero--intro .hero__actions > :nth-child(3) { animation-delay: 1.15s; }
+.hero--intro .hero__badges li { animation: heroUp .6s var(--ease) backwards; }
+.hero--intro .hero__badges li:nth-child(1) { animation-delay: 1.25s; }
+.hero--intro .hero__badges li:nth-child(2) { animation-delay: 1.35s; }
+.hero--intro .hero__badges li:nth-child(3) { animation-delay: 1.45s; }
+.hero--intro .hero__showcase { animation: heroShow 1s var(--ease) .35s backwards; }
+
+/* Un brillo granate muy suave que se mueve lentamente al fondo de la portada */
+@keyframes heroGlow { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-5%, 4%) scale(1.1); } }
+.hero__bg::before {
+  content: ""; position: absolute; width: 62vmax; height: 62vmax; right: -20vmax; top: -26vmax;
+  border-radius: 50%; background: radial-gradient(circle, rgba(125,31,46,.11), transparent 64%);
+  animation: heroGlow 16s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal--left, .reveal--right { transform: none; }
+  .feature__media, .about__media { translate: none; }
+  .hero--intro .hw { display: inline; }
+}

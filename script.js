@@ -55,23 +55,109 @@
   }
 
   /* ---- Reveal al hacer scroll ---- */
-  var revealEls = document.querySelectorAll(".reveal");
-  if ("IntersectionObserver" in window && revealEls.length) {
-    var io = new IntersectionObserver(
+  var reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var io = null;
+  if ("IntersectionObserver" in window) {
+    io = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            io.unobserve(entry.target);
+          if (!entry.isIntersecting) return;
+          var el = entry.target;
+          el.classList.add("is-visible");
+          io.unobserve(el);
+          // El retraso escalonado solo sirve para la entrada: luego se quita
+          // para que el efecto al pasar el ratón no llegue tarde.
+          if (el.style.getPropertyValue("--d")) {
+            setTimeout(function () { el.style.removeProperty("--d"); }, 1200);
           }
         });
       },
       { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
     );
-    revealEls.forEach(function (el) { io.observe(el); });
-  } else {
-    revealEls.forEach(function (el) { el.classList.add("is-visible"); });
   }
+  function observeReveal(els) {
+    Array.prototype.forEach.call(els, function (el) {
+      if (io) io.observe(el); else el.classList.add("is-visible");
+    });
+  }
+  // Las tarjetas de una misma rejilla entran una detrás de otra
+  function staggerReveal(els) {
+    Array.prototype.forEach.call(els, function (el, i) {
+      el.style.setProperty("--d", Math.min(i * 0.09, 0.45).toFixed(2) + "s");
+    });
+  }
+  // En los bloques de dos columnas, una parte entra por la izquierda y la
+  // otra por la derecha, según su orden real en la página.
+  document.querySelectorAll(".feature__media, .about__media, .visit__map, .cta__form").forEach(function (el) {
+    var pair = Array.prototype.filter.call(el.parentNode.children, function (c) { return c.classList.contains("reveal"); });
+    if (pair.length !== 2) return;
+    pair[0].classList.add("reveal--left");
+    pair[1].classList.add("reveal--right");
+  });
+  document.querySelectorAll(".tips, .trust__grid, .quotes, .reviews").forEach(function (grid) {
+    staggerReveal(Array.prototype.filter.call(grid.children, function (c) { return c.classList.contains("reveal"); }));
+  });
+  observeReveal(document.querySelectorAll(".reveal"));
+
+  /* ---- Entrada animada de la portada ---- */
+  (function heroIntro() {
+    var hero = document.querySelector(".hero");
+    if (!hero) return;
+    var title = hero.querySelector(".hero__title");
+    if (title) {
+      // Cada palabra en su propia capa para que aparezcan una tras otra
+      var n = 0;
+      Array.prototype.slice.call(title.childNodes).forEach(function (node) {
+        if (node.nodeType !== 3) return;          // los <br> se quedan igual
+        var frag = document.createDocumentFragment();
+        node.textContent.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          var w = document.createElement("span");
+          w.className = "hw";
+          w.textContent = part;
+          w.style.setProperty("--i", n++);
+          frag.appendChild(w);
+        });
+        title.replaceChild(frag, node);
+      });
+    }
+    hero.classList.add("hero--intro");
+  })();
+
+  /* ---- Efecto al hacer scroll: barra de progreso y profundidad ---- */
+  var progressBar = document.createElement("div");
+  progressBar.className = "scroll-progress";
+  progressBar.setAttribute("aria-hidden", "true");
+  document.body.appendChild(progressBar);
+
+  // Las fotos grandes se desplazan algo más despacio que el texto
+  var parallaxEls = reduceMotion ? [] :
+    Array.prototype.slice.call(document.querySelectorAll(".feature__media, .about__media"));
+  var scrollTicking = false;
+  function onScrollEffects() {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    window.requestAnimationFrame(function () {
+      scrollTicking = false;
+      var vh = window.innerHeight;
+      var max = document.documentElement.scrollHeight - vh;
+      progressBar.style.setProperty("--sp", max > 0 ? Math.min(1, window.scrollY / max).toFixed(4) : 0);
+      var k = window.innerWidth < 720 ? 0.05 : 0.09;
+      parallaxEls.forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.bottom < -150 || r.top > vh + 150) return;
+        // Se descuenta el desplazamiento ya aplicado para medir su sitio real
+        var center = r.top - (el._py || 0) + r.height / 2;
+        var y = Math.max(-40, Math.min(40, -(center - vh / 2) * k));
+        el._py = y;
+        el.style.setProperty("--py", y.toFixed(1) + "px");
+      });
+    });
+  }
+  window.addEventListener("scroll", onScrollEffects, { passive: true });
+  window.addEventListener("resize", onScrollEffects);
+  onScrollEffects();
 
   /* ---- Carrusel del hero (rotación automática) ---- */
   var carousel = document.getElementById("heroCarousel");
@@ -103,7 +189,7 @@
       slides[idx].classList.add("is-active");
       dots[idx].classList.add("is-active");
     }
-    function start() { heroTimer = setInterval(function () { go(idx + 1); }, 3800); }
+    function start() { heroTimer = setInterval(function () { go(idx + 1); }, 2600); }
     function restart() { clearInterval(heroTimer); start(); }
     var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!reduce && slides.length > 1) {
@@ -754,7 +840,7 @@
     wrap.innerHTML = "";
     catMeta.forEach(function (c) {
       var a = document.createElement("a");
-      a.className = "cat reveal is-visible";
+      a.className = "cat reveal";
       a.href = "#catalogo";
       a.setAttribute("data-cat-filter", c.slug);
       var photos = categoryPhotos(c, galleries || {}, rows);
@@ -783,6 +869,10 @@
       a.addEventListener("click", function () { setFilter(c.slug); });
       wrap.appendChild(a);
     });
+    // Entran escalonadas al llegar a ellas haciendo scroll
+    var cards = wrap.querySelectorAll(".cat");
+    staggerReveal(cards);
+    observeReveal(cards);
     startCategoryRotation(wrap);
   }
 
