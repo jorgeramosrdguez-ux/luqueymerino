@@ -864,7 +864,7 @@ body.pmodal-open { overflow: hidden; }
   .footer__col a { width: 100%; }
 
   /* Teléfonos y correos: cómodos de pulsar en cualquier sección */
-  a[href^="tel:"], a[href^="mailto:"] { display: inline-flex; align-items: center; min-height: 40px; }
+  a[href^="tel:"], a[href^="mailto:"], .info a[href*="wa.me"] { display: inline-flex; align-items: center; min-height: 40px; }
 }
 
 /* Mensaje en el hueco del catálogo (cargando, o si no se pudo cargar) */

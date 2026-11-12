@@ -143,8 +143,11 @@
       var vh = window.innerHeight;
       var max = document.documentElement.scrollHeight - vh;
       progressBar.style.setProperty("--sp", max > 0 ? Math.min(1, window.scrollY / max).toFixed(4) : 0);
-      var k = window.innerWidth < 720 ? 0.05 : 0.09;
+      // En pantallas estrechas la foto va encima del texto: moverla podría
+      // montarla sobre él, así que ahí se deja quieta.
+      var k = window.innerWidth < 900 ? 0 : 0.09;
       parallaxEls.forEach(function (el) {
+        if (!k) { if (el._py) { el._py = 0; el.style.setProperty("--py", "0px"); } return; }
         var r = el.getBoundingClientRect();
         if (r.bottom < -150 || r.top > vh + 150) return;
         // Se descuenta el desplazamiento ya aplicado para medir su sitio real
@@ -261,12 +264,51 @@
     searchInput.addEventListener("input", refreshCatalog);
   }
 
+  // Aplica un filtro buscando la categoría real que encaje: el identificador
+  // exacto o, si no existe, la que contenga esa palabra en su identificador o
+  // nombre (por si la tienda usa otros nombres). Si no encaja ninguna, se
+  // muestra todo en lugar de un catálogo vacío.
+  function setFilterSmart(want) {
+    var btns = Array.prototype.slice.call(document.querySelectorAll(".cat-filters .filter"));
+    var match = null;
+    btns.forEach(function (b) { if (!match && b.getAttribute("data-filter") === want) match = want; });
+    if (!match) {
+      var words = [plain(want)].concat(plain(want).split(/[-\s]+/));
+      words.some(function (w) {
+        if (!w) return false;
+        btns.forEach(function (b) {
+          var f = b.getAttribute("data-filter");
+          if (!match && f !== "all" && (plain(f).indexOf(w) >= 0 || plain(b.textContent).indexOf(w) >= 0)) match = f;
+        });
+        return !!match;
+      });
+    }
+    setFilter(match || "all");
+  }
+
   // Accesos directos (tarjetas de categoría y menú) que filtran el catálogo
   document.querySelectorAll("[data-cat-filter]").forEach(function (el) {
     el.addEventListener("click", function () {
-      setFilter(el.getAttribute("data-cat-filter"));
+      setFilterSmart(el.getAttribute("data-cat-filter"));
     });
   });
+
+  // El submenú "Catálogo" se rehace con las categorías reales que tienen
+  // productos, así coincide siempre con los filtros del catálogo.
+  function renderMenuCategories() {
+    var drop = document.querySelector(".nav__links .dropdown");
+    var btns = document.querySelectorAll(".cat-filters .filter:not([data-filter='all'])");
+    if (!drop || !btns.length) return;
+    drop.innerHTML = "";
+    Array.prototype.forEach.call(btns, function (b) {
+      var a = document.createElement("a");
+      a.href = "#catalogo";
+      a.textContent = b.textContent;
+      a.setAttribute("data-cat-filter", b.getAttribute("data-filter"));
+      a.addEventListener("click", function () { setFilter(b.getAttribute("data-filter")); closeMenu(); });
+      drop.appendChild(a);
+    });
+  }
 
   /* ---- Catálogo dinámico desde Supabase ---- */
   function escapeHtml(s) {
@@ -941,6 +983,7 @@
         });
         renderCategoryCards(catMeta, galleries, rows);
         renderFilters(rows, catMeta);
+        renderMenuCategories();
         catalogEl.innerHTML = "";
         rows.forEach(function (p) { catalogEl.appendChild(productCard(p)); });
         refreshCatalog();
@@ -972,16 +1015,8 @@
   // de la base de datos los filtros se rehacen y vuelven a "Todo".
   function applyDeepLink() {
     if (!deepLink.cat && !deepLink.ir) return;
-    if (deepLink.cat) {
-      // La palabra se busca en el identificador o el nombre de cada filtro,
-      // así sirve aunque la tienda renombre sus categorías.
-      var want = plain(deepLink.cat), match = null;
-      document.querySelectorAll(".cat-filters .filter").forEach(function (b) {
-        var f = b.getAttribute("data-filter");
-        if (!match && f !== "all" && (plain(f).indexOf(want) >= 0 || plain(b.textContent).indexOf(want) >= 0)) match = f;
-      });
-      if (match) setFilter(match);
-    }
+    // Busca la categoría real que encaje, aunque la tienda la haya renombrado
+    if (deepLink.cat) setFilterSmart(deepLink.cat);
     if (deepLinkScrolled) return;
     deepLinkScrolled = true;
     var target = document.getElementById(deepLink.ir || "catalogo");
