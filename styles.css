@@ -287,11 +287,6 @@ body.menu-open { overflow: hidden; }
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; transform: scale(var(--z, 1));
 }
-.cat:hover .cat__img img.cat-photo { transform: scale(calc(var(--z, 1) * 1.06)); }
-/* Varias fotos en la tarjeta: van apareciendo por turnos con un fundido */
-.cat__img img.cat-photo { opacity: 0; transition: opacity 1.1s var(--ease), transform .35s var(--ease); }
-.cat__img img.cat-photo.is-on { opacity: 1; }
-.cat:hover .cat__img img { transform: scale(1.06); }
 .cat--lg .cat__img { height: 250px; }
 .cat__body { padding: 1.4rem 1.5rem 1.6rem; flex: 1; display: flex; flex-direction: column; }
 .cat__body h3 { font-size: 1.6rem; margin-bottom: .35rem; }
