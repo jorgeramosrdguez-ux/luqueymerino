@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-label="Protección para el colchón">
+  <ellipse cx="120" cy="150" rx="94" ry="9" fill="#7d1f2e" opacity=".10"/>
+  <!-- colchón -->
+  <rect x="38" y="90" width="164" height="44" rx="12" fill="#f4e7cf"/>
+  <!-- capitoné -->
+  <g stroke="#e3cfa6" stroke-width="2" fill="none" opacity=".8">
+    <path d="M64 90 l-14 44 M96 90 l-14 44 M128 90 l-14 44 M160 90 l-14 44 M180 90 l-8 44"/>
+  </g>
+  <!-- funda protectora (banda granate encima) -->
+  <path d="M38 96 q82 -20 164 0 v8 q-82 -18 -164 0 z" fill="#a5324a"/>
+  <!-- gota de agua = impermeable -->
+  <path d="M120 40 c 9 13 15 21 15 29 a15 15 0 0 1 -30 0 c 0 -8 6 -16 15 -29 z" fill="#7d1f2e"/>
+  <path d="M116 62 a7 7 0 0 0 5 5" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+</svg>

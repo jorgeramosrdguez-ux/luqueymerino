@@ -1,0 +1,121 @@
+<!--META
+{
+  "path": "/contacto-y-como-llegar",
+  "out": "contacto-y-como-llegar.html",
+  "title": "Contacto y cómo llegar | Luque & Merino, Alcorcón",
+  "description": "Visítanos en Calle Sapporo, 20 (Alcorcón). Horario, teléfono 91 610 47 31, WhatsApp 679 381 294 y mapa para llegar a la tienda.",
+  "nav": "contacto",
+  "crumbs": [["Inicio", "/"], ["Contacto y cómo llegar", null]],
+  "schema": ["localbusiness"],
+  "waText": "Hola Luque & Merino, quería hacer una consulta",
+  "ctaTitle": "Te esperamos en la tienda",
+  "link": { "text": "Contacto y cómo llegar", "desc": "Dirección, horario, teléfono, WhatsApp y mapa de la tienda en Alcorcón." },
+  "priority": "0.8"
+}
+META-->
+    <section class="page-hero">
+      <div class="container page-hero__inner">
+        <div>
+          <span class="eyebrow">Visítanos</span>
+          <h1>Contacto y cómo llegar a la tienda</h1>
+          <p class="page-hero__lead">Estamos en la <strong>calle Sapporo, 20, en Alcorcón</strong>. Pásate a vernos, llámanos o escríbenos por WhatsApp: te atendemos con el trato de toda la vida.</p>
+          <div class="page-hero__actions">
+            <a class="btn btn--primary" href="https://www.google.com/maps/search/?api=1&amp;query=Luque+y+Merino+Decoraci%C3%B3n+Calle+Sapporo+20+Alcorc%C3%B3n" target="_blank" rel="noopener">{{icon:pin}}Cómo llegar con Google Maps</a>
+            <a class="btn btn--call" href="tel:+34916104731">{{icon:phone}}Llamar: 91 610 47 31</a>
+          </div>
+        </div>
+        <figure class="page-hero__media">
+          <!-- TODO: sustituir por una foto real del escaparate de la tienda (ver img/fotos/LEEME.txt) -->
+          <img src="/img/ilustraciones/ilustracion-cortinas-y-estores.svg" alt="Ilustración del escaparate de una tienda de cortinas y textil" width="240" height="180" fetchpriority="high" />
+        </figure>
+      </div>
+    </section>
+
+    <section class="page-body">
+      <div class="container contact-cols">
+        <div class="prose">
+          <h2>Datos de la tienda</h2>
+          <ul class="info">
+            <li><span class="info__ic">📍</span><div><strong>Dirección</strong><br />Calle Sapporo, 20 · 28923 Alcorcón (Madrid)</div></li>
+            <li><span class="info__ic">📞</span><div><strong>Teléfono de la tienda</strong><br /><a href="tel:+34916104731">91 610 47 31</a></div></li>
+            <li><span class="info__ic">💬</span><div><strong>WhatsApp</strong><br /><a href="{{waurl:Hola Luque & Merino}}" target="_blank" rel="noopener">679 381 294</a></div></li>
+            <li><span class="info__ic">✉️</span><div><strong>Email</strong><br /><a href="mailto:luqueymerino@hotmail.com">luqueymerino@hotmail.com</a></div></li>
+          </ul>
+
+          <h2>Horario</h2>
+          <table class="hours">
+            <tr><th scope="row">Lunes a viernes</th><td>10:00–14:00 y 17:00–20:30</td></tr>
+            <tr><th scope="row">Sábado</th><td>10:00–14:00</td></tr>
+          </table>
+          <!-- TODO (pedir al cliente): confirmar que los domingos está cerrado y si hay horario de verano o de festivos. -->
+
+          <h2>Cómo llegar</h2>
+          <p>Estamos en la calle Sapporo, número 20, en Alcorcón. Con el botón <strong>“Cómo llegar con Google Maps”</strong> te abre la ruta desde donde estés, en coche, andando o en transporte público.</p>
+          <!-- TODO (pedir al cliente): referencias para llegar (paradas de autobús o metro cercanas,
+               aparcamiento, algún sitio conocido al lado). No las indicamos hasta tenerlas. -->
+        </div>
+        <div class="visit__map">
+          <iframe
+            title="Mapa de la tienda Luque &amp; Merino en Calle Sapporo, 20, Alcorcón"
+            src="https://www.google.com/maps?q=Calle%20Sapporo%2020%2C%2028923%20Alcorc%C3%B3n%2C%20Madrid&amp;output=embed"
+            loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" id="escribenos">
+      <div class="container cta__inner">
+        <div class="cta__text">
+          <span class="eyebrow eyebrow--light">¿Hablamos?</span>
+          <h2 class="section__title">Cuéntanos qué necesitas</h2>
+          <p>Presupuesto de cortinas, un bordado especial o una consulta sobre ropa de cama. Escríbenos y te respondemos enseguida.</p>
+          <p>Y si es para cortinas o estores, recuerda que <strong>medimos e instalamos en toda la Comunidad de Madrid</strong>: tienes todos los detalles en <a href="/cortinas-estores-a-medida-alcorcon" class="cta__link">cortinas y estores a medida</a>.</p>
+          <div class="cta__quick">
+            <a class="btn btn--wa btn--whatsapp" href="{{waurl:Hola Luque & Merino}}" target="_blank" rel="noopener">{{icon:wa}} WhatsApp: 679 381 294</a>
+            <a class="btn btn--call" href="tel:+34916104731">{{icon:phone}}Llamar: 91 610 47 31</a>
+          </div>
+        </div>
+
+        <form class="cta__form" id="contactForm" novalidate>
+          <div class="field">
+            <label for="name">Nombre</label>
+            <input id="name" name="name" type="text" placeholder="Tu nombre" required />
+          </div>
+          <div class="field">
+            <label for="phone">Teléfono</label>
+            <input id="phone" name="phone" type="tel" placeholder="Para poder llamarte" required />
+          </div>
+          <div class="field">
+            <label for="topic">Me interesa</label>
+            <select id="topic" name="topic">
+              <option>Cortinas y estores a medida</option>
+              <option>Bordado personalizado</option>
+              <option>Ropa de cama</option>
+              <option>Baño</option>
+              <option>Mantelerías</option>
+              <option>Textil de bebé</option>
+              <option>Otra consulta</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="msg">Mensaje</label>
+            <textarea id="msg" name="msg" rows="3" placeholder="Cuéntanos qué necesitas"></textarea>
+          </div>
+          <button type="submit" class="btn btn--wa btn--block">Enviar por WhatsApp</button>
+          <p class="form__hint">Al enviar, abriremos WhatsApp con tu mensaje listo para mandar. ¿No tienes WhatsApp en el ordenador? Escríbenos desde el móvil al <strong>679 381 294</strong> o llámanos al <a href="tel:+34916104731">91 610 47 31</a>.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="page-body">
+      <div class="container">
+        <div class="prose">
+          <h2>Lo que opinan nuestros clientes</h2>
+          <p>Puedes leer las reseñas de quienes ya nos conocen en <a href="https://www.google.com/maps?cid=4009134602118971671" target="_blank" rel="noopener">nuestra ficha de Google</a>, y algunas de ellas en la <a href="/#opiniones">portada de la web</a>. Si ya has comprado con nosotros, nos ayuda mucho que dejes la tuya.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TODO (contenido): ~280 palabras. Para llegar a ~400 útiles: cómo llegar (autobús, metro, aparcamiento, referencias cercanas) y horario de verano o festivos. -->
+
+    {{related:/cortinas-estores-a-medida-alcorcon,/bordados-personalizados,/consejos}}

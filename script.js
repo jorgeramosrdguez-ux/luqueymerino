@@ -293,23 +293,6 @@
     });
   });
 
-  // El submenú "Catálogo" se rehace con las categorías reales que tienen
-  // productos, así coincide siempre con los filtros del catálogo.
-  function renderMenuCategories() {
-    var drop = document.querySelector(".nav__links .dropdown");
-    var btns = document.querySelectorAll(".cat-filters .filter:not([data-filter='all'])");
-    if (!drop || !btns.length) return;
-    drop.innerHTML = "";
-    Array.prototype.forEach.call(btns, function (b) {
-      var a = document.createElement("a");
-      a.href = "#catalogo";
-      a.textContent = b.textContent;
-      a.setAttribute("data-cat-filter", b.getAttribute("data-filter"));
-      a.addEventListener("click", function () { setFilter(b.getAttribute("data-filter")); closeMenu(); });
-      drop.appendChild(a);
-    });
-  }
-
   /* ---- Catálogo dinámico desde Supabase ---- */
   function escapeHtml(s) {
     return String(s == null ? "" : s)
@@ -903,19 +886,40 @@
     applyDeepLink();
   }
 
+  // Filtro de las páginas de categoría (ropa de cama, toallas…). Viene en el
+  // atributo data-page-filter del listado: un producto entra si su categoría
+  // encaja con "cats" o su nombre con "words", salvo que su categoría encaje
+  // con "not". Así funciona aunque la tienda agrupe varias cosas en una
+  // misma categoría del panel.
+  function pageFilter() {
+    if (!catalogEl) return null;
+    var raw = catalogEl.getAttribute("data-page-filter");
+    if (!raw) return null;
+    var f;
+    try { f = JSON.parse(raw); } catch (e) { return null; }
+    var cats = (f.cats || []).map(plain), words = (f.words || []).map(plain), not = (f.not || []).map(plain);
+    function any(list, txt) { return list.some(function (w) { return w && txt.indexOf(w) >= 0; }); }
+    return function (p, catLabel) {
+      var cat = plain((p.category || "") + " " + (catLabel || ""));
+      if (any(not, cat)) return false;
+      return any(cats, cat) || any(words, plain(p.name || ""));
+    };
+  }
+
   function loadCatalog() {
     var cfg = window.LYM_SUPABASE;
-    if (!catalogEl || !cfg || !window.supabase) { catalogFailed(); return; }
+    if (!cfg || !window.supabase) { catalogFailed(); return; }
     try {
       var sb = window.supabase.createClient(cfg.url, cfg.key);
 
-      // Ajustes de la web (imágenes, banner y fotos extra de las categorías).
-      // Se convierte en promesa una sola vez para reutilizar la misma consulta.
-      var pSets = Promise.resolve(sb.from("lym_settings").select("*"))
-        .catch(function () { return { data: [] }; });
-      pSets.then(function (res) {
-        if (!res.error) applySiteImages(res.data);
-      });
+      // Ajustes de la web (fotos de las secciones y banner): en todas las páginas
+      Promise.resolve(sb.from("lym_settings").select("*")).then(function (res) {
+        if (res && !res.error) applySiteImages(res.data);
+      }).catch(function () { /* si falla, se queda el diseño por defecto */ });
+
+      if (!catalogEl) return;              // página sin listado de productos
+      var filterFn = pageFilter();
+
       // Categorías (para orden y nombres) y productos activos, en paralelo.
       var pCats = sb.from("lym_categories").select("*").order("sort_order", { ascending: true });
       var pProd = sb.from(cfg.table).select("*").eq("active", true).order("sort_order", { ascending: true });
@@ -926,8 +930,14 @@
         var prod = results[1] || {};
         if (prod.error) { console.warn("Catálogo no disponible (", prod.error.message, ")"); catalogFailed(); return; }
         var rows = prod.data || [];
+        if (filterFn) {
+          var labels = {};
+          catMeta.forEach(function (c) { labels[c.slug] = c.label; });
+          rows = rows.filter(function (p) { return filterFn(p, labels[p.category]); });
+        }
         if (!rows.length) {
-          catalogMessage("Muy pronto encontrarás aquí nuestros productos. Mientras tanto, pásate por la tienda o pregúntanos.");
+          catalogMessage(catalogEl.getAttribute("data-empty") ||
+            "Muy pronto encontrarás aquí nuestros productos. Mientras tanto, pásate por la tienda o pregúntanos.");
           applyDeepLink();
           return;
         }
@@ -940,15 +950,16 @@
         productsById = {};
         rows.forEach(function (p) { productsById[p.id] = p; });
 
-        renderCategoryCards(catMeta, rows);
-        renderFilters(rows, catMeta);
-        renderMenuCategories();
+        // Tarjetas de categoría, filtros y carrusel solo existen en la portada
+        if (!filterFn) {
+          renderCategoryCards(catMeta, rows);
+          renderFilters(rows, catMeta);
+        }
         catalogEl.innerHTML = "";
         rows.forEach(function (p) { catalogEl.appendChild(productCard(p)); });
         refreshCatalog();
 
-        var featured = rows.filter(function (p) { return p.is_featured; });
-        renderHero(featured);
+        renderHero(rows.filter(function (p) { return p.is_featured; }));
         applyDeepLink();
       }).catch(function (e) { console.warn("Catálogo no disponible (", e && e.message, ")"); catalogFailed(); });
     } catch (e) {

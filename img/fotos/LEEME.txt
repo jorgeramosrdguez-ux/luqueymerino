@@ -1,0 +1,26 @@
+FOTOS REALES DE LA WEB — dónde ponerlas
+=======================================
+
+Las páginas usan ahora ilustraciones (carpeta img/ilustraciones/). Para
+cambiarlas por fotos reales de la tienda:
+
+1. Guarda la foto aquí, en img/fotos/, en JPG o WebP, con un nombre que
+   describa lo que se ve, en minúsculas y con guiones. Ejemplos:
+     cortinas-salon-alcorcon.jpg
+     juego-sabanas-coralina.jpg
+     toallas-bordadas-nombre.jpg
+     manteleria-resinada-mesa.jpg
+     canastilla-bebe-bordada.jpg
+     protector-colchon-impermeable.jpg
+     escaparate-tienda-calle-sapporo.jpg
+   Tamaño recomendado: unos 1200 px de ancho, menos de 300 KB.
+
+2. En la página correspondiente de src/pages/, cambia en la imagen de
+   cabecera el src (por ejemplo /img/fotos/juego-sabanas-coralina.jpg),
+   el alt (qué se ve exactamente) y width/height (las medidas reales).
+
+3. Ejecuta: node tools/build.mjs   y publica.
+
+Las fotos de "Cortinas a medida", "Bordados" y "La tienda" de la portada
+NO van aquí: el cliente las cambia desde el panel (/admin → Imágenes de
+la web) y salen también en sus páginas.

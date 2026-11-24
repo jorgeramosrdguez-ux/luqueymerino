@@ -1,0 +1,51 @@
+  <!-- ====== BARRA SUPERIOR ====== -->
+  <div class="topbar">
+    <div class="container topbar__inner">
+      <span class="topbar__item">📍 Calle Sapporo, 20 · Alcorcón</span>
+      <span class="topbar__sep">·</span>
+      <span class="topbar__item">🕒 L–V 10–14 h y 17–20:30 h · S 10–14 h</span>
+      <a class="topbar__item topbar__phone" href="tel:+34916104731">📞 Tienda 91 610 47 31</a>
+      <span class="topbar__sep topbar__sep--wa">·</span>
+      <a class="topbar__item topbar__phone topbar__wa" href="https://wa.me/34679381294?text=Hola%20Luque%20%26%20Merino" target="_blank" rel="noopener">💬 WhatsApp 679 381 294</a>
+    </div>
+  </div>
+
+  <!-- ====== NAVEGACIÓN ====== -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a href="/" class="brand" aria-label="Luque y Merino Decoración, ir a la portada">
+        <img class="logo__img" src="/img/logo.png" alt="Luque &amp; Merino Decoración" width="287" height="44"
+             onload="this.classList.add('is-on')" onerror="this.remove()" />
+        <span class="logo">
+          <span class="logo__script">luque <em>&amp;</em> merino</span>
+          <span class="logo__deco">Decoración</span>
+        </span>
+      </a>
+
+      <nav class="nav__links" id="menu" aria-label="Menú principal">
+        <div class="nav__item nav__item--drop">
+          <a href="/#catalogo" class="nav__top"{{nav:catalogo}}>Catálogo
+            <svg class="nav__caret" viewBox="0 0 12 8" width="11" height="8" aria-hidden="true"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <div class="dropdown">
+            <a href="/ropa-de-cama"{{nav:cama}}>Ropa de cama</a>
+            <a href="/toallas-y-albornoces"{{nav:toallas}}>Toallas y albornoces</a>
+            <a href="/mantelerias"{{nav:mantelerias}}>Mantelerías</a>
+            <a href="/textil-bebe-e-infantil"{{nav:bebe}}>Textil de bebé e infantil</a>
+            <a href="/proteccion-colchon"{{nav:colchon}}>Protección del colchón</a>
+            <a href="/#catalogo">Ver todo el catálogo</a>
+          </div>
+        </div>
+        <a href="/cortinas-estores-a-medida-alcorcon"{{nav:cortinas}}>Cortinas a medida</a>
+        <a href="/bordados-personalizados"{{nav:bordados}}>Bordados</a>
+        <a href="/consejos"{{nav:consejos}}>Consejos</a>
+        <a href="/contacto-y-como-llegar"{{nav:contacto}}>Cómo llegar</a>
+        <a href="/contacto-y-como-llegar#escribenos" class="btn btn--sm btn--primary nav__cta">Hacer una pregunta</a>
+      </nav>
+
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+  <div class="nav-backdrop" id="navBackdrop" hidden></div>

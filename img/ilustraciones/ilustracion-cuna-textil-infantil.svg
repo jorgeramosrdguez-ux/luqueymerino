@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-label="Cama infantil">
+  <ellipse cx="120" cy="158" rx="88" ry="8" fill="#7d1f2e" opacity=".10"/>
+  <!-- postes -->
+  <rect x="44" y="66" width="11" height="92" rx="5" fill="#c99f5f"/>
+  <rect x="185" y="66" width="11" height="92" rx="5" fill="#c99f5f"/>
+  <!-- remates -->
+  <circle cx="49.5" cy="64" r="7" fill="#b98d47"/>
+  <circle cx="190.5" cy="64" r="7" fill="#b98d47"/>
+  <!-- barandillas -->
+  <rect x="44" y="74" width="152" height="10" rx="5" fill="#b98d47"/>
+  <rect x="44" y="120" width="152" height="10" rx="5" fill="#b98d47"/>
+  <!-- barrotes -->
+  <g fill="#d8b878">
+    <rect x="66" y="84" width="6" height="36" rx="3"/>
+    <rect x="86" y="84" width="6" height="36" rx="3"/>
+    <rect x="106" y="84" width="6" height="36" rx="3"/>
+    <rect x="126" y="84" width="6" height="36" rx="3"/>
+    <rect x="146" y="84" width="6" height="36" rx="3"/>
+    <rect x="166" y="84" width="6" height="36" rx="3"/>
+  </g>
+  <!-- colchón + manta granate -->
+  <rect x="55" y="104" width="130" height="20" rx="5" fill="#f2e3c9"/>
+  <rect x="55" y="104" width="130" height="11" rx="5" fill="#a5324a" opacity=".9"/>
+</svg>
