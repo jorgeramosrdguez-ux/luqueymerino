@@ -77,13 +77,13 @@
           <a href="/#catalogo" class="nav__top">Catálogo
             <svg class="nav__caret" viewBox="0 0 12 8" width="11" height="8" aria-hidden="true"><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
-          <div class="dropdown">
+          <div class="dropdown" data-dyn-cats>
             <a href="/ropa-de-cama">Ropa de cama</a>
             <a href="/toallas-y-albornoces">Toallas y albornoces</a>
             <a href="/mantelerias">Mantelerías</a>
             <a href="/textil-bebe-e-infantil">Textil de bebé e infantil</a>
             <a href="/proteccion-colchon">Protección del colchón</a>
-            <a href="/#catalogo">Ver todo el catálogo</a>
+            <a href="/#catalogo" data-dyn-before>Ver todo el catálogo</a>
           </div>
         </div>
         <a href="/cortinas-estores-a-medida-alcorcon">Cortinas a medida</a>
@@ -113,8 +113,8 @@
             <a class="btn btn--call" href="tel:+34916104731"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .8-.3 1l-2.2 2.2z"/></svg>Llamar: 91 610 47 31</a>
           </div>
         </div>
-        <!-- La foto de esta cabecera se cambia desde el panel (Imágenes de la web → Bordado personalizado). -->
-        <figure class="page-hero__media" data-site-img="img_embroidery">
+        <!-- La foto de esta cabecera es la de la categoría «Bordados» del panel (si no tiene, la de Imágenes de la web → Bordado personalizado). -->
+        <figure class="page-hero__media" data-photo="cat:textil,set:img_embroidery">
           <img src="/img/ilustraciones/ilustracion-bordado-personalizado.svg" alt="Ilustración de una toalla con un nombre bordado" width="240" height="180" fetchpriority="high" />
         </figure>
       </div>
@@ -214,14 +214,14 @@
         </span>
         <p>Ropa de hogar y decoración en Alcorcón. Vestimos tu casa con las telas de siempre.</p>
       </div>
-      <div class="footer__col">
+      <div class="footer__col" data-dyn-cats>
         <h4>Colección</h4>
         <a href="/ropa-de-cama">Ropa de cama</a>
         <a href="/toallas-y-albornoces">Toallas y albornoces</a>
         <a href="/mantelerias">Mantelerías</a>
         <a href="/textil-bebe-e-infantil">Textil de bebé e infantil</a>
         <a href="/proteccion-colchon">Protección del colchón</a>
-        <a href="/#catalogo">Catálogo completo</a>
+        <a href="/#catalogo" data-dyn-before>Catálogo completo</a>
       </div>
       <div class="footer__col">
         <h4>Servicios y tienda</h4>

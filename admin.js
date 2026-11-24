@@ -41,11 +41,14 @@
       });
   }
 
-  // Imágenes grandes de la página principal que el cliente puede cambiar.
+  // Imágenes grandes de la web que el cliente puede cambiar.
   var SITE_IMAGES = [
     { key: "img_curtains",   title: "Cortinas y estores a medida", desc: "Foto grande de la sección del servicio estrella." },
     { key: "img_embroidery", title: "Bordado personalizado",       desc: "Foto de la sección de bordados." },
-    { key: "img_store",      title: "La tienda",                   desc: "Foto del escaparate o interior en “Sobre nosotros”." }
+    { key: "img_store",      title: "La tienda",                   desc: "Foto del escaparate o interior en “Sobre nosotros” y en la página Contacto y cómo llegar." },
+    { key: "img_page_ropa",        title: "Página Ropa de cama",          desc: "Foto de cabecera de la página Ropa de cama. Si no subes ninguna, se usa la foto de la categoría “Textil hogar”." },
+    { key: "img_page_toallas",     title: "Página Toallas y albornoces",  desc: "Foto de cabecera de la página Toallas y albornoces. Si no subes ninguna, se usa la foto de la categoría “Textil hogar”." },
+    { key: "img_page_mantelerias", title: "Página Mantelerías",           desc: "Foto de cabecera de la página Mantelerías. Si no subes ninguna, se usa la foto de la categoría “Textil hogar”." }
   ];
 
   function esc(s) {

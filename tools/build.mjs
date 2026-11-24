@@ -63,6 +63,8 @@ const BUSINESS = {
    palabra de "cats" o su nombre alguna de "words", y su categoría no contiene
    ninguna de "not". Se comparan sin tildes ni mayúsculas. */
 const FILTERS = {
+  // Página genérica /categoria?c=slug: muestra los productos de esa categoría exacta
+  "url": { fromUrl: "c" },
   "ropa-de-cama": { cats: ["ropa-de-cama", "ropa de cama"], words: ["sabana", "nordic", "edredon", "colcha", "manta", "plaid", "almohad", "bajera", "encimera", "juego de cama", "cojin", "boutis"], not: ["colchon", "bebe", "infantil", "cuna", "cortina"] },
   "toallas": { cats: ["toalla", "albornoz", "bano"], words: ["toalla", "albornoz", "alfombra de bano"], not: ["bebe", "infantil", "cuna"] },
   "mantelerias": { cats: ["mantel"], words: ["mantel", "servillet", "camino de mesa"], not: [] },
@@ -145,7 +147,7 @@ function head(p) {
   <title>${esc(p.title)}</title>
   <meta name="description" content="${esc(p.description)}" />
   <meta name="theme-color" content="#7d1f2e" />
-  <link rel="canonical" href="${canonical(p)}" />
+${p.robots ? `  <meta name="robots" content="${p.robots}" />\n` : ""}  <link rel="canonical" href="${canonical(p)}" />
 
   <!-- Open Graph / redes sociales -->
   <meta property="og:type" content="${p.ogType || "website"}" />

@@ -1,0 +1,40 @@
+<!--META
+{
+  "path": "/categoria",
+  "out": "categoria.html",
+  "title": "Catálogo de la tienda | Luque & Merino Alcorcón",
+  "description": "Productos de nuestra tienda de ropa de hogar en Alcorcón. Pregúntanos por WhatsApp o ven a vernos a la calle Sapporo, 20.",
+  "nav": "catalogo",
+  "robots": "noindex, follow",
+  "sitemap": false,
+  "crumbs": [["Inicio", "/"], ["Catálogo", "/#catalogo"], ["Categoría", null]],
+  "waText": "Hola Luque & Merino, quería información sobre un producto",
+  "productsTitle": "Productos de esta categoría",
+  "link": { "text": "Catálogo de la tienda", "desc": "Todos los productos de la tienda." }
+}
+META-->
+    <!-- Página genérica para las categorías que el cliente crea en el panel y que no tienen página fija.
+         El nombre, el texto y la foto se rellenan desde Supabase (script.js → initCategoryPage).
+         Va con noindex: si una categoría nueva merece posicionar en Google, se le hace su página fija. -->
+    <section class="page-hero" data-cat-page>
+      <div class="container page-hero__inner">
+        <div>
+          <span class="eyebrow">Catálogo</span>
+          <h1 data-cat-title>Nuestro catálogo</h1>
+          <p class="page-hero__lead" data-cat-lead>Estos son los productos que tenemos ahora en la tienda. Si buscas algo que no ves aquí, pregúntanos por WhatsApp o pásate por la tienda.</p>
+          <div class="page-hero__actions">
+            <a class="btn btn--wa btn--whatsapp" href="{{waurl:Hola Luque & Merino, quería información sobre un producto}}" target="_blank" rel="noopener">{{icon:wa}} Preguntar por WhatsApp</a>
+            <a class="btn btn--call" href="tel:+34916104731">{{icon:phone}}Llamar: 91 610 47 31</a>
+          </div>
+        </div>
+        <figure class="page-hero__media" data-cat-photo>
+          <img src="/img/ilustraciones/ilustracion-ropa-de-cama.svg" alt="Ilustración de textil para el hogar" width="240" height="180" fetchpriority="high" />
+        </figure>
+      </div>
+    </section>
+
+    {{products:url}}
+
+    {{related:/ropa-de-cama,/cortinas-estores-a-medida-alcorcon,/contacto-y-como-llegar}}
+
+    {{cta}}

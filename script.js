@@ -808,18 +808,104 @@
       var cfg;
       if (raw.charAt(0) === "{") { try { cfg = JSON.parse(raw); } catch (e) { return; } }
       else { cfg = { url: raw, zoom: 100, x: 50, y: 50 }; }
-      if (!cfg || !cfg.url) return;
-
-      var img = document.createElement("img");
-      img.className = "site-photo";
-      img.src = cfg.url;
-      img.alt = "";
-      img.style.objectFit = cfg.fit || "cover";
-      img.style.objectPosition = (cfg.x == null ? 50 : cfg.x) + "% " + (cfg.y == null ? 50 : cfg.y) + "%";
-      img.style.transform = "scale(" + (cfg.zoom || 100) / 100 + ")";
-      box.appendChild(img);
-      box.classList.add("has-photo");
+      putPhoto(box, cfg);
     });
+  }
+
+  // Pone una foto (con el encuadre guardado en el panel) encima de la ilustración.
+  function putPhoto(box, cfg) {
+    if (!box || !cfg || !cfg.url) return;
+    var old = box.querySelector(".site-photo");
+    if (old) old.parentNode.removeChild(old);
+    var img = document.createElement("img");
+    img.className = "site-photo";
+    img.src = cfg.url;
+    img.alt = "";
+    img.style.objectFit = cfg.fit || "cover";
+    img.style.objectPosition = (cfg.x == null ? 50 : cfg.x) + "% " + (cfg.y == null ? 50 : cfg.y) + "%";
+    img.style.transform = "scale(" + (cfg.zoom || 100) / 100 + ")";
+    box.appendChild(img);
+    box.classList.add("has-photo");
+  }
+
+  function settingPhoto(raw) {
+    if (!raw) return null;
+    if (raw.charAt(0) === "{") { try { return JSON.parse(raw); } catch (e) { return null; } }
+    return { url: raw, zoom: 100, x: 50, y: 50 };
+  }
+  function categoryPhotoCfg(c) {
+    if (!c || !/^https?:\/\//.test(c.image || "")) return null;
+    return { url: c.image, zoom: c.img_zoom || 100, x: c.img_x, y: c.img_y };
+  }
+
+  /* ---- Páginas fijas de cada categoría del panel ----
+     Las categorías que no están aquí (las que el cliente cree nuevas) salen
+     solas en el menú y en el pie, y se ven en la página genérica /categoria. */
+  var CAT_PAGES = {
+    "cortinas": "/cortinas-estores-a-medida-alcorcon",
+    "textil": "/bordados-personalizados",
+    "bebe": "/textil-bebe-e-infantil",
+    "cama-infantil": "/textil-bebe-e-infantil",
+    "colchon": "/proteccion-colchon"
+  };
+  // "Textil hogar" no va al menú: sus productos ya salen repartidos en
+  // Ropa de cama, Toallas y albornoces y Mantelerías.
+  var MENU_SKIP = { "textil-hogar": true };
+  var urlCat = "";
+  try { urlCat = (new URLSearchParams(location.search).get("c") || "").toLowerCase(); } catch (e) { /* sin filtro */ }
+
+  // Fotos de cabecera: data-photo="cat:slug,set:clave" → la primera que exista
+  // (cat = foto de la categoría en el panel, set = Imágenes de la web).
+  function applyPagePhotos(settings, cats) {
+    var map = {}, bySlug = {};
+    (settings || []).forEach(function (r) { map[r.key] = r.value; });
+    (cats || []).forEach(function (c) { bySlug[c.slug] = c; });
+    document.querySelectorAll("[data-photo]").forEach(function (box) {
+      var list = box.getAttribute("data-photo").split(",");
+      for (var i = 0; i < list.length; i++) {
+        var kv = list[i].split(":"), cfg = null;
+        if (kv[0] === "cat") cfg = categoryPhotoCfg(bySlug[kv[1]]);
+        else if (kv[0] === "set") cfg = settingPhoto(map[kv[1]]);
+        if (cfg && cfg.url) { putPhoto(box, cfg); return; }
+      }
+    });
+  }
+
+  // Añade al menú "Catálogo" y al pie las categorías nuevas del panel.
+  function renderDynamicCats(cats) {
+    var extra = (cats || []).filter(function (c) { return c && c.slug && !CAT_PAGES[c.slug] && !MENU_SKIP[c.slug]; });
+    document.querySelectorAll("[data-dyn-cats]").forEach(function (box) {
+      box.querySelectorAll(".dyn-cat").forEach(function (a) { a.parentNode.removeChild(a); });
+      var before = box.querySelector("[data-dyn-before]");
+      extra.forEach(function (c) {
+        var a = document.createElement("a");
+        a.className = "dyn-cat";
+        a.href = "/categoria?c=" + encodeURIComponent(c.slug);
+        a.textContent = c.label || c.slug;
+        if (urlCat && urlCat === c.slug && /\/categoria$/.test(location.pathname)) a.setAttribute("aria-current", "page");
+        box.insertBefore(a, before || null);
+      });
+    });
+  }
+
+  // Página genérica /categoria?c=slug: nombre, texto y foto de la categoría.
+  function initCategoryPage(cats) {
+    var hero = document.querySelector("[data-cat-page]");
+    if (!hero) return;
+    if (urlCat && CAT_PAGES[urlCat]) { location.replace(CAT_PAGES[urlCat]); return; }
+    var c = (cats || []).filter(function (x) { return x.slug === urlCat; })[0];
+    var title = hero.querySelector("[data-cat-title]"), lead = hero.querySelector("[data-cat-lead]");
+    if (!c) {
+      if (title) title.textContent = "Nuestro catálogo";
+      if (lead) lead.innerHTML = 'No encontramos esta sección. Puedes ver <a href="/#catalogo">todo el catálogo de la tienda</a> o preguntarnos por WhatsApp.';
+      return;
+    }
+    if (title) title.textContent = c.label;
+    if (lead && c.description) lead.textContent = c.description;
+    document.title = c.label + " | Luque & Merino Alcorcón";
+    var crumb = document.querySelector('.crumbs [aria-current="page"]');
+    if (crumb) crumb.textContent = c.label;
+    putPhoto(hero.querySelector("[data-cat-photo]"), categoryPhotoCfg(c));
   }
 
   /* ---- Tarjetas de categoría (una foto fija, sin animaciones) ---- */
@@ -897,6 +983,7 @@
     if (!raw) return null;
     var f;
     try { f = JSON.parse(raw); } catch (e) { return null; }
+    if (f.fromUrl) return function (p) { return !!urlCat && p.category === urlCat; };
     var cats = (f.cats || []).map(plain), words = (f.words || []).map(plain), not = (f.not || []).map(plain);
     function any(list, txt) { return list.some(function (w) { return w && txt.indexOf(w) >= 0; }); }
     return function (p, catLabel) {
@@ -912,21 +999,27 @@
     try {
       var sb = window.supabase.createClient(cfg.url, cfg.key);
 
-      // Ajustes de la web (fotos de las secciones y banner): en todas las páginas
-      Promise.resolve(sb.from("lym_settings").select("*")).then(function (res) {
-        if (res && !res.error) applySiteImages(res.data);
-      }).catch(function () { /* si falla, se queda el diseño por defecto */ });
+      // En todas las páginas: ajustes (fotos y banner) y categorías (menú,
+      // fotos de cabecera y página genérica). Si fallan, se queda lo de por defecto.
+      var safe = function (q) { return Promise.resolve(q).then(function (r) { return (r && !r.error && r.data) || []; }, function () { return []; }); };
+      var pSet = safe(sb.from("lym_settings").select("*"));
+      var pCats = safe(sb.from("lym_categories").select("*").order("sort_order", { ascending: true }));
+      pSet.then(applySiteImages);
+      Promise.all([pSet, pCats]).then(function (r) {
+        renderDynamicCats(r[1]);
+        initCategoryPage(r[1]);
+        applyPagePhotos(r[0], r[1]);
+      });
 
       if (!catalogEl) return;              // página sin listado de productos
       var filterFn = pageFilter();
 
-      // Categorías (para orden y nombres) y productos activos, en paralelo.
-      var pCats = sb.from("lym_categories").select("*").order("sort_order", { ascending: true });
+      // Productos activos y variantes, en paralelo con lo anterior.
       var pProd = sb.from(cfg.table).select("*").eq("active", true).order("sort_order", { ascending: true });
       var pVars = sb.from("lym_variants").select("*").order("sort_order", { ascending: true });
 
       Promise.all([pCats, pProd, pVars]).then(function (results) {
-        var catMeta = (results[0] && results[0].data) || [];
+        var catMeta = results[0] || [];
         var prod = results[1] || {};
         if (prod.error) { console.warn("Catálogo no disponible (", prod.error.message, ")"); catalogFailed(); return; }
         var rows = prod.data || [];
